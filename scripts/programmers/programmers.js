@@ -42,13 +42,33 @@ function startLoader() {
     // 기능 Off시 작동하지 않도록 함
     const enable = await checkEnable();
     if (!enable) stopLoader();
-    // 제출 후 채점하기 결과가 성공적으로 나왔다면 코드를 파싱하고, 업로드를 시작한다
-    else if (getSolvedResult().includes('정답')) {
+
+    const solvedResult = getSolvedResult();
+
+    // ✅ 정답인 경우
+    if (solvedResult.includes('정답')) {
       log('정답이 나왔습니다. 업로드를 시작합니다.');
       stopLoader();
       try {
         const bojData = await parseData();
-        await beginUpload(bojData);
+        await beginUpload(bojData, true); // isPassed = true
+      } catch (error) {
+        log(error);
+      }
+    }
+    // ❌ 오답인 경우 (실패 / 오답 / 런타임 에러 / 시간 초과 등)
+    else if (
+      solvedResult.includes('실패') ||
+      solvedResult.includes('오답') ||
+      solvedResult.includes('런타임') ||
+      solvedResult.includes('시간 초과') ||
+      solvedResult.includes('컴파일')
+    ) {
+      log('오답이 나왔습니다. 오답 업로드를 시작합니다.');
+      stopLoader();
+      try {
+        const bojData = await parseData();
+        await beginUpload(bojData, false); // isPassed = false
       } catch (error) {
         log(error);
       }
@@ -70,8 +90,8 @@ function getSolvedResult() {
 }
 
 /* 파싱 직후 실행되는 함수 */
-async function beginUpload(bojData) {
-  log('bojData', bojData);
+async function beginUpload(bojData, isPassed = true) {
+  log('bojData', bojData, 'isPassed', isPassed);
   if (isNotEmpty(bojData)) {
     startUpload();
 
@@ -85,28 +105,29 @@ async function beginUpload(bojData) {
       await versionUpdate();
     }
 
-    /* 현재 제출하려는 소스코드가 기존 업로드한 내용과 같다면 중지 */
-    cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`)
-    calcSHA = calculateBlobSHA(bojData.code)
-    log('cachedSHA', cachedSHA, 'calcSHA', calcSHA)
+    /* ✅ 정답인 경우에만 중복 업로드 체크 (오답은 항상 새로 커밋) */
+    if (isPassed) {
+      const cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`);
+      const calcSHA = calculateBlobSHA(bojData.code);
+      log('cachedSHA', cachedSHA, 'calcSHA', calcSHA);
 
-    if (isNull(cachedSHA)) {
-      /* 로컬 캐시가 없는 경우 원격 저장소에서 파일 존재 여부 실시간 확인 */
-      const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
-      if (remoteFile && remoteFile.sha === calcSHA) {
+      if (isNull(cachedSHA)) {
+        const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
+        if (remoteFile && remoteFile.sha === calcSHA) {
+          markUploadedCSS(stats.branches, bojData.directory);
+          console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
+          return;
+        }
+        console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
+      } else if (cachedSHA == calcSHA) {
         markUploadedCSS(stats.branches, bojData.directory);
-        console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
+        console.log(`현재 제출번호를 업로드한 기록이 있습니다. problemId ${bojData.problemId}`);
         return;
       }
-      /* GitHub에서 파일이 삭제되거나 없는 경우, 새 업로드로 처리 */
-      console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
-    } else if (cachedSHA == calcSHA) {
-      markUploadedCSS(stats.branches, bojData.directory);
-      console.log(`현재 제출번호를 업로드한 기록이 있습니다. problemIdID ${bojData.problemId}`);
-      return;
     }
-    /* 신규 제출 번호라면 새롭게 커밋  */
-    await uploadOneSolveProblemOnGit(bojData, markUploadedCSS);
+
+    /* 신규 제출이거나 오답이라면 커밋 */
+    await uploadOneSolveProblemOnGit(bojData, isPassed, markUploadedCSS);
   }
 }
 
