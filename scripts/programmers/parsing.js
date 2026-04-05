@@ -116,7 +116,6 @@ async function makeData(origin) {
   const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -BaekjoonHub`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
-  // prettier-ignore
   const readme =
     `# [${levelWithLv}] ${title} - ${problemId} \n\n`
     + `[문제 링크](${link}) \n\n`
@@ -131,7 +130,28 @@ async function makeData(origin) {
     + `${dateInfo}\n\n`
     + `### 문제 설명\n\n`
     + `${problem_description}\n\n`
-    + `> 출처: 프로그래머스 코딩 테스트 연습, https://school.programmers.co.kr/learn/challenges`;
+    + `> 출처: 프로그래머스 코딩 테스트 연습, https://school.programmers.co.kr/learn/challenges\n\n`
+    + `---\n\n`
+    + `## 🗒️ 풀이 노트\n\n`
+    + `### ❌ 오답 기록\n\n`
+    + `> 틀렸던 코드와 이유를 기록해두세요.\n\n`
+    + `\`\`\`python\n`
+    + `# 오답 코드\n`
+    + `\`\`\`\n\n`
+    + `### ✅ 정답 풀이\n\n`
+    + `> 최종 정답 코드와 핵심 아이디어를 메모하세요.\n\n`
+    + `\`\`\`python\n`
+    + `# 정답 코드\n`
+    + `\`\`\`\n\n`
+    + `### 💡 새로 배운 개념\n\n`
+    + `> 이 문제를 통해 새로 알게 된 함수, 문법, 패턴을 정리하세요.\n\n`
+    + `-\n\n`
+    + `### 🔁 헷갈렸던 부분\n\n`
+    + `> 헷갈렸거나 실수하기 쉬운 부분을 기록하세요.\n\n`
+    + `-\n\n`
+    + `### 📌 다음에 기억할 것\n\n`
+    + `> 다음에 비슷한 문제를 풀 때 떠올려야 할 핵심 포인트를 적어두세요.\n\n`
+    + `-\n`;
 
   return { problemId, directory, message, fileName, readme, code, notesMarkdown, hasNotes };
 }
