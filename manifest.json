@@ -62,6 +62,8 @@
         "https://github.com/*"
       ],
       "js": [
+        "test_inject.js",
+        "library/sha1.min.js",
         "scripts/util.js",
         "scripts/Github.js",
         "scripts/authorize.js"
