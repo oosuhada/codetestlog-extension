@@ -10,7 +10,10 @@ let loader;
 const currentUrl = window.location.href;
 
 // 프로그래머스 연습 문제 주소임을 확인하고, 맞다면 로더를 실행
-if (currentUrl.includes('/learn/courses/30') && currentUrl.includes('lessons')) startLoader();
+if (currentUrl.includes('/learn/courses/30') && currentUrl.includes('lessons')) {
+  startLoader();
+  attachRunCodeListener();
+}
 
 if (currentUrl.includes('/learn/challenges')) {
   (async () => {
@@ -47,10 +50,7 @@ function startLoader() {
     if (!solvedResult) return;
 
     const isPassed = solvedResult.includes('정답');
-    const isFailed =
-      solvedResult.includes('실패') ||
-      solvedResult.includes('오답') ||
-      solvedResult.includes('결과');
+    const isFailed = solvedResult.includes('틀렸습니다');
 
     if (isPassed || isFailed) {
       log(isPassed ? '정답입니다. 업로드를 시작합니다.' : '오답입니다. 오답 업로드를 시작합니다.');
@@ -70,6 +70,38 @@ function stopLoader() {
   clearInterval(loader);
 }
 
+/**
+ * '코드 실행' 버튼(#run-code) 클릭 시 현재 코드를 커밋합니다.
+ * 버튼이 아직 렌더링 안 됐을 수 있으므로 MutationObserver로 대기합니다.
+ */
+function attachRunCodeListener() {
+  const tryAttach = () => {
+    const runBtn = document.querySelector('button#run-code');
+    if (runBtn && !runBtn.dataset.bjhAttached) {
+      runBtn.dataset.bjhAttached = 'true';
+      runBtn.addEventListener('click', async () => {
+        const enable = await checkEnable();
+        if (!enable) return;
+        log('코드 실행 버튼 클릭 - 코드 커밋 시작');
+        try {
+          const bojData = await parseData();
+          if (isNull(bojData)) return;
+          // 코드 실행은 정답/오답 구분 없이 '실행' 타입으로 커밋
+          await beginUpload(bojData, null);
+        } catch (error) {
+          log('코드 실행 커밋 오류:', error);
+        }
+      });
+      log('코드 실행 버튼 리스너 등록 완료');
+    }
+  };
+
+  // 즉시 시도 후, 없으면 DOM 변화 감지
+  tryAttach();
+  const observer = new MutationObserver(tryAttach);
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function getSolvedResult() {
   const result = document.querySelector('div.modal-header > h4')
     || document.querySelector('#modal-dialog h4')
@@ -79,7 +111,9 @@ function getSolvedResult() {
   return '';
 }
 
-/* 파싱 직후 실행되는 함수 */
+/* 파싱 직후 실행되는 함수
+ * isPassed: true = 정답, false = 오답(틀렸습니다), null = 코드 실행
+ */
 async function beginUpload(bojData, isPassed = true) {
   if (uploadState.uploading) return;
   uploadState.uploading = true;

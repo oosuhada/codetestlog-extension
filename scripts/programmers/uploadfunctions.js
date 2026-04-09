@@ -13,8 +13,11 @@ async function uploadOneSolveProblemOnGit(bojData, isPassed = true, cb) {
     return;
   }
 
-  // 오답인 경우 파일명에 타임스탬프 추가, 커밋 메시지 분기
-  if (!isPassed) {
+  // 커밋 메시지 및 파일명 분기
+  // isPassed: true=정답, false=오답, null=코드 실행
+  if (isPassed === true) {
+    bojData.message = `✅ 정답: ${bojData.message}`;
+  } else if (isPassed === false) {
     const timestamp = Math.floor(Date.now() / 1000);
     const dotIndex = bojData.fileName.lastIndexOf('.');
     const name = bojData.fileName.substring(0, dotIndex);
@@ -22,7 +25,13 @@ async function uploadOneSolveProblemOnGit(bojData, isPassed = true, cb) {
     bojData.fileName = `${name}_wrong_${timestamp}${ext}`;
     bojData.message = `❌ 오답: ${bojData.message}`;
   } else {
-    bojData.message = `✅ 정답: ${bojData.message}`;
+    // 코드 실행 (isPassed === null)
+    const timestamp = Math.floor(Date.now() / 1000);
+    const dotIndex = bojData.fileName.lastIndexOf('.');
+    const name = bojData.fileName.substring(0, dotIndex);
+    const ext = bojData.fileName.substring(dotIndex);
+    bojData.fileName = `${name}_run_${timestamp}${ext}`;
+    bojData.message = `▶️ 코드 실행: ${bojData.message}`;
   }
 
   try {
@@ -62,8 +71,8 @@ async function upload(token, hook, bojData, isPassed = true, cb) {
     content: bojData.code,
   });
 
-  // README.md (정답인 경우에만)
-  if (isPassed) {
+  // README.md (정답인 경우에만, 오답/코드실행은 코드 파일만 커밋)
+  if (isPassed === true) {
     tree_items.push({
       path: `${bojData.directory}/README.md`,
       mode: '100644',
