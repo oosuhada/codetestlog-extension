@@ -44,31 +44,21 @@ function startLoader() {
     if (!enable) stopLoader();
 
     const solvedResult = getSolvedResult();
+    if (!solvedResult) return;
 
-    // ✅ 정답인 경우
-    if (solvedResult.includes('정답')) {
-      log('정답이 나왔습니다. 업로드를 시작합니다.');
-      stopLoader();
-      try {
-        const bojData = await parseData();
-        await beginUpload(bojData, true); // isPassed = true
-      } catch (error) {
-        log(error);
-      }
-    }
-    // ❌ 오답인 경우 (실패 / 오답 / 런타임 에러 / 시간 초과 등)
-    else if (
+    const isPassed = solvedResult.includes('정답');
+    const isFailed =
       solvedResult.includes('실패') ||
       solvedResult.includes('오답') ||
-      solvedResult.includes('런타임') ||
-      solvedResult.includes('시간 초과') ||
-      solvedResult.includes('컴파일')
-    ) {
-      log('오답이 나왔습니다. 오답 업로드를 시작합니다.');
+      solvedResult.includes('결과');
+
+    if (isPassed || isFailed) {
+      log(isPassed ? '정답입니다. 업로드를 시작합니다.' : '오답입니다. 오답 업로드를 시작합니다.');
       stopLoader();
       try {
         const bojData = await parseData();
-        await beginUpload(bojData, false); // isPassed = false
+        if (isNull(bojData)) return;
+        await beginUpload(bojData, isPassed);
       } catch (error) {
         log(error);
       }
@@ -91,44 +81,49 @@ function getSolvedResult() {
 
 /* 파싱 직후 실행되는 함수 */
 async function beginUpload(bojData, isPassed = true) {
+  if (uploadState.uploading) return;
+  uploadState.uploading = true;
   log('bojData', bojData, 'isPassed', isPassed);
-  if (isNotEmpty(bojData)) {
-    startUpload();
 
-    const stats = await getStats();
-    const hook = await getHook();
-    const token = await getToken();
+  startUpload();
 
-    const currentVersion = stats.version;
-    /* 버전 차이가 발생하거나, 해당 hook에 대한 데이터가 없는 경우 localstorage의 Stats 값을 업데이트하고, version을 최신으로 변경한다 */
-    if (isNull(currentVersion) || currentVersion !== getVersion() || isNull(await getStatsSHAfromPath(hook))) {
-      await versionUpdate();
+  const stats = await getStats();
+  const hook = await getHook();
+  const token = await getToken();
+
+  const currentVersion = stats.version;
+  if (isNull(currentVersion) || currentVersion !== getVersion() || isNull(await getStatsSHAfromPath(hook))) {
+    await versionUpdate();
+  }
+
+  /* ✅ 정답인 경우에만 중복 업로드 체크 (오답은 항상 새로 커밋) */
+  if (isPassed) {
+    const cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`);
+    const calcSHA = calculateBlobSHA(bojData.code);
+    log('cachedSHA', cachedSHA, 'calcSHA', calcSHA);
+
+    if (!isNull(cachedSHA) && cachedSHA === calcSHA) {
+      markUploadedCSS(stats.branches, bojData.directory);
+      console.log(`현재 제출번호를 업로드한 기록이 있습니다. problemId ${bojData.problemId}`);
+      uploadState.uploading = false;
+      return;
     }
 
-    /* ✅ 정답인 경우에만 중복 업로드 체크 (오답은 항상 새로 커밋) */
-    if (isPassed) {
-      const cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`);
-      const calcSHA = calculateBlobSHA(bojData.code);
-      log('cachedSHA', cachedSHA, 'calcSHA', calcSHA);
-
-      if (isNull(cachedSHA)) {
-        const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
-        if (remoteFile && remoteFile.sha === calcSHA) {
-          markUploadedCSS(stats.branches, bojData.directory);
-          console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
-          return;
-        }
-        console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
-      } else if (cachedSHA == calcSHA) {
+    if (isNull(cachedSHA)) {
+      const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
+      if (remoteFile && remoteFile.sha === calcSHA) {
         markUploadedCSS(stats.branches, bojData.directory);
-        console.log(`현재 제출번호를 업로드한 기록이 있습니다. problemId ${bojData.problemId}`);
+        console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
+        uploadState.uploading = false;
         return;
       }
+      console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
     }
-
-    /* 신규 제출이거나 오답이라면 커밋 */
-    await uploadOneSolveProblemOnGit(bojData, isPassed, markUploadedCSS);
   }
+
+  /* 신규 제출이거나 오답이라면 커밋 */
+  await uploadOneSolveProblemOnGit(bojData, isPassed, markUploadedCSS);
+  uploadState.uploading = false;
 }
 
 async function versionUpdate() {

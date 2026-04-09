@@ -28,75 +28,31 @@ function reconstructFillBlankCode(node) {
 
 /**
  * 코드에서 [NOTE], [WRONG], [TODO] 태그가 포함된 주석을 추출합니다.
- * 단일행 주석(//) 과 블록 주석(/* *\/) 모두 지원합니다.
+ * 단일행 주석(//) 만 지원합니다.
  * @param {string} code - 소스코드 문자열
- * @returns {{ notes: Array<{tag: string, content: string}>, hasNotes: boolean }}
+ * @returns {{ hasNotes: boolean, notesMarkdown: string }}
  */
 function extractTaggedComments(code) {
-  const tagPattern = /\[(NOTE|WRONG|TODO)\]/i;
-  const notes = [];
+  const tags = ['NOTE', 'WRONG', 'TODO'];
+  let notes = '';
+  let hasNotes = false;
 
-  // 단일행 주석 처리: // ... [TAG] ...
-  const singleLineComments = [...code.matchAll(/\/\/(.+)/g)];
-  for (const match of singleLineComments) {
-    const commentBody = match[1].trim();
-    const tagMatch = commentBody.match(tagPattern);
-    if (tagMatch) {
-      notes.push({
-        tag: tagMatch[1].toUpperCase(),
-        content: commentBody.replace(tagPattern, '').trim(),
-      });
+  tags.forEach((tag) => {
+    const regex = new RegExp(`\\/\\/\\s*\\[${tag}\\](.*)`, 'g');
+    const matches = code.matchAll(regex);
+    for (const match of matches) {
+      notes += `- **${tag}**: ${match[1].trim()}\n`;
+      hasNotes = true;
     }
-  }
+  });
 
-  // 블록 주석 처리: /* ... [TAG] ... */
-  const blockComments = [...code.matchAll(/\/\*([\s\S]*?)\*\//g)];
-  for (const match of blockComments) {
-    const lines = match[1].split('\n').map((l) => l.replace(/^\s*\*\s?/, '').trim()).filter(Boolean);
-    for (const line of lines) {
-      const tagMatch = line.match(tagPattern);
-      if (tagMatch) {
-        notes.push({
-          tag: tagMatch[1].toUpperCase(),
-          content: line.replace(tagPattern, '').trim(),
-        });
-      }
-    }
-  }
-
-  return { notes, hasNotes: notes.length > 0 };
+  return {
+    hasNotes,
+    notesMarkdown: notes ? `### 풀이 노트\n\n${notes}` : '',
+  };
 }
 
-/**
- * 추출된 태그 주석을 notes.md 형식의 문자열로 변환합니다.
- * @param {string} title - 문제 제목
- * @param {string} problemId - 문제 ID
- * @param {Array<{tag: string, content: string}>} notes - 추출된 주석 배열
- * @returns {string} - notes.md 내용
- */
-function buildNotesMarkdown(title, problemId, notes) {
-  const dateInfo = getDateString(new Date(Date.now()));
-  const tagEmoji = { NOTE: '📝', WRONG: '❌', TODO: '🔧' };
 
-  const grouped = { NOTE: [], WRONG: [], TODO: [] };
-  for (const { tag, content } of notes) {
-    if (grouped[tag]) grouped[tag].push(content);
-  }
-
-  let md = `# 📓 풀이 노트 - ${title} (${problemId})\n\n`;
-  md += `> 작성일: ${dateInfo}\n\n`;
-
-  for (const [tag, items] of Object.entries(grouped)) {
-    if (items.length === 0) continue;
-    md += `## ${tagEmoji[tag]} ${tag}\n\n`;
-    for (const item of items) {
-      md += `- ${item}\n`;
-    }
-    md += '\n';
-  }
-
-  return md.trim();
-}
 
 async function parseData() {
   const link = document.querySelector('head > meta[name$=url]').content.replace(/\?.*/g, '').trim();
@@ -141,13 +97,13 @@ async function parseData() {
   const language = document.querySelector('div#tour7 > button').textContent.trim();
 
   // 태그 주석 추출
-  const { notes, hasNotes } = extractTaggedComments(code);
+  const { hasNotes, notesMarkdown } = extractTaggedComments(code);
 
-  return makeData({ link, problemId, level, title, problem_description, division, language_extension, code, result_message, runtime, memory, language, notes, hasNotes });
+  return makeData({ link, problemId, level, title, problem_description, division, language_extension, code, result_message, runtime, memory, language, hasNotes, notesMarkdown });
 }
 
 async function makeData(origin) {
-  const { problem_description, problemId, level, result_message, division, language_extension, title, runtime, memory, code, language, notes, hasNotes } = origin;
+  const { problem_description, problemId, level, result_message, division, language_extension, title, runtime, memory, code, language, hasNotes, notesMarkdown, link } = origin;
   const directory = await buildDirectory('programmers', {
     platform: '프로그래머스',
     level,
@@ -176,9 +132,6 @@ async function makeData(origin) {
     + `### 문제 설명\n\n`
     + `${problem_description}\n\n`
     + `> 출처: 프로그래머스 코딩 테스트 연습, https://school.programmers.co.kr/learn/challenges`;
-
-  // notes.md 내용 생성 (태그 주석이 있는 경우에만)
-  const notesMarkdown = hasNotes ? buildNotesMarkdown(title, problemId, notes) : null;
 
   return { problemId, directory, message, fileName, readme, code, notesMarkdown, hasNotes };
 }
@@ -292,9 +245,9 @@ async function fetchProblemCodeAndData(problemInfo) {
     const link = `https://school.programmers.co.kr/learn/courses/30/lessons/${problemId}`;
 
     // 태그 주석 추출 (일괄 업로드 시에도 적용)
-    const { notes, hasNotes } = extractTaggedComments(code);
+    const { hasNotes, notesMarkdown } = extractTaggedComments(code);
 
-    return await makeDataForBulkUpload({ link, problemId, level, title, problem_description, division, language_extension, code, language, notes, hasNotes });
+    return await makeDataForBulkUpload({ link, problemId, level, title, problem_description, division, language_extension, code, language, hasNotes, notesMarkdown });
   } catch (e) {
     console.error(`Failed to fetch problem ${problemId}:`, e);
     return null;
@@ -305,7 +258,7 @@ async function fetchProblemCodeAndData(problemInfo) {
  * 일괄 업로드용 데이터를 생성합니다.
  */
 async function makeDataForBulkUpload(origin) {
-  const { problem_description, problemId, level, division, language_extension, title, code, language, link, notes, hasNotes } = origin;
+  const { problem_description, problemId, level, division, language_extension, title, code, language, link, hasNotes, notesMarkdown } = origin;
   const directory = await buildDirectory('programmers', {
     platform: '프로그래머스',
     level,
@@ -328,8 +281,6 @@ async function makeDataForBulkUpload(origin) {
     + `### 문제 설명\n\n`
     + `${problem_description}\n\n`
     + `> 출처: 프로그래머스 코딩 테스트 연습, https://school.programmers.co.kr/learn/challenges`;
-
-  const notesMarkdown = hasNotes ? buildNotesMarkdown(title, problemId, notes) : null;
 
   return { problemId, directory, message, fileName, readme, code, notesMarkdown, hasNotes };
 }

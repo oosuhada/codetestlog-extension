@@ -12,6 +12,19 @@ async function uploadOneSolveProblemOnGit(bojData, isPassed = true, cb) {
     console.error('token or hook is null', token, hook);
     return;
   }
+
+  // 오답인 경우 파일명에 타임스탬프 추가, 커밋 메시지 분기
+  if (!isPassed) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const dotIndex = bojData.fileName.lastIndexOf('.');
+    const name = bojData.fileName.substring(0, dotIndex);
+    const ext = bojData.fileName.substring(dotIndex);
+    bojData.fileName = `${name}_wrong_${timestamp}${ext}`;
+    bojData.message = `❌ 오답: ${bojData.message}`;
+  } else {
+    bojData.message = `✅ 정답: ${bojData.message}`;
+  }
+
   try {
     return await upload(token, hook, bojData, isPassed, cb);
   } catch (e) {
@@ -37,51 +50,48 @@ async function upload(token, hook, bojData, isPassed = true, cb) {
   const stats = await getStats();
   const default_branch = await git.getDefaultBranchOnRepo();
   stats.branches[hook] = default_branch;
-  const refData = await git.getReference(default_branch);
-  const { refSHA, ref } = refData;
+  const { refSHA, ref } = await git.getReference(default_branch);
 
-  // ✅ 정답 / ❌ 오답에 따라 커밋 메시지와 파일명 분기
-  const passLabel = isPassed ? '✅ 정답' : '❌ 오답';
-  const commitMessage = isPassed
-    ? `${bojData.message.replace('-BaekjoonHub', '')}[✅ 정답] -BaekjoonHub`
-    : `${bojData.message.replace('-BaekjoonHub', '')}[❌ 오답] -BaekjoonHub`;
+  const tree_items = [];
 
-  // 오답인 경우 파일명에 타임스탬프 추가 (예: wrong_1710000000.js)
-  const timestamp = Math.floor(Date.now() / 1000);
-  const ext = bojData.fileName.split('.').pop();
-  const finalFileName = isPassed
-    ? bojData.fileName
-    : `wrong_${timestamp}.${ext}`;
+  // 소스코드
+  tree_items.push({
+    path: `${bojData.directory}/${bojData.fileName}`,
+    mode: '100644',
+    type: 'blob',
+    content: bojData.code,
+  });
 
-  const treeItems = [];
-
-  // 소스코드 파일
-  const source = await git.createBlob(bojData.code, `${bojData.directory}/${finalFileName}`);
-  treeItems.push(source);
-
-  // README.md (정답인 경우에만 업데이트, 오답은 코드 파일만 커밋)
+  // README.md (정답인 경우에만)
   if (isPassed) {
-    const readme = await git.createBlob(bojData.readme, `${bojData.directory}/README.md`);
-    treeItems.push(readme);
+    tree_items.push({
+      path: `${bojData.directory}/README.md`,
+      mode: '100644',
+      type: 'blob',
+      content: bojData.readme,
+    });
   }
 
-  // notes.md (태그 주석이 있는 경우 별도 커밋)
+  // notes.md (태그 주석이 있는 경우에만)
   if (bojData.hasNotes && bojData.notesMarkdown) {
-    const notes = await git.createBlob(bojData.notesMarkdown, `${bojData.directory}/notes.md`);
-    treeItems.push(notes);
+    tree_items.push({
+      path: `${bojData.directory}/notes.md`,
+      mode: '100644',
+      type: 'blob',
+      content: bojData.notesMarkdown,
+    });
   }
 
-  const treeData = await git.createTree(refSHA, treeItems);
-  const commitSHA = await git.createCommit(commitMessage, treeData.sha, refSHA);
+  const treeData = await git.createTree(refSHA, tree_items);
+  const commitSHA = await git.createCommit(bojData.message, treeData.sha, refSHA);
   await git.updateHead(ref, commitSHA);
 
-  /* stats의 값을 갱신합니다. */
-  for (const item of treeItems) {
+  /* stats 갱신 */
+  treeData.tree.forEach((item) => {
     updateObjectDatafromPath(stats.submission, `${hook}/${item.path}`, item.sha);
-  }
+  });
   await saveStats(stats);
 
-  // 콜백 함수 실행
   if (typeof cb === 'function') {
     cb(stats.branches, bojData.directory);
   }
