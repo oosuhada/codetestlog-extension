@@ -1,268 +1,172 @@
-<h1 align="center">
-  <img src="assets/thumbnail.png" alt="BaekjoonHub - Automatically sync your code to GitHub." width="400">
-  <br>
-  BaekjoonHub - Automatically sync your code to GitHub.
-  <br>
-  <br>
-</h1>
+# 🪵 CodeTestLog
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
-  <a href="https://chrome.google.com/webstore/detail/ccammcjdkpgjmcpijpahlehmapgmphmk"><img src="https://img.shields.io/chrome-web-store/v/ccammcjdkpgjmcpijpahlehmapgmphmk.svg" alt="chrome-webstore"/></a>
-  <a href="https://chrome.google.com/webstore/detail/ccammcjdkpgjmcpijpahlehmapgmphmk"><img src="https://img.shields.io/chrome-web-store/d/ccammcjdkpgjmcpijpahlehmapgmphmk.svg" alt="users"></a>
-    
-</a>
-</p>
+> 프로그래머스 풀이를 자동으로 GitHub에 기록해주는 크롬 확장프로그램
 
-</br>
+[![GitHub](https://img.shields.io/badge/GitHub-oosuhada%2Fcode--test--log-181717?style=flat-square&logo=github)](https://github.com/oosuhada/code-test-log)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?style=flat-square&logo=google-chrome&logoColor=white)](chrome://extensions)
+[![Programmers](https://img.shields.io/badge/Programmers-지원-1e2d3d?style=flat-square)](https://programmers.co.kr)
 
-## Contributors
+---
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/flaxinger"><img src="https://avatars.githubusercontent.com/u/70012548?v=4?s=100" width="100px;" alt="flaxinger"/><br /><sub><b>flaxinger</b></sub></a><br /><a href="#maintenance-flaxinger" title="Maintenance">🚧</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/getCurrentThread"><img src="https://avatars.githubusercontent.com/u/31976959?v=4?s=100" width="100px;" alt="getCurrentThread"/><br /><sub><b>getCurrentThread</b></sub></a><br /><a href="#maintenance-getCurrentThread" title="Maintenance">🚧</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/doxxx93"><img src="https://avatars.githubusercontent.com/u/51396905?v=4?s=100" width="100px;" alt="Doxxx93"/><br /><sub><b>Doxxx93</b></sub></a><br /><a href="#talk-doxxx93" title="Talks">📢</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://xvezda.com"><img src="https://avatars.githubusercontent.com/u/9497404?v=4?s=100" width="100px;" alt="Xvezda"/><br /><sub><b>Xvezda</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=Xvezda" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/keinetwork"><img src="https://avatars.githubusercontent.com/u/102347379?v=4?s=100" width="100px;" alt="keinetwork"/><br /><sub><b>keinetwork</b></sub></a><br /><a href="#question-keinetwork" title="Answering Questions">💬</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LimSB-dev"><img src="https://avatars.githubusercontent.com/u/95527804?v=4?s=100" width="100px;" alt="임성빈"/><br /><sub><b>임성빈</b></sub></a><br /><a href="#question-LimSB-dev" title="Answering Questions">💬</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/fhdufhdu"><img src="https://avatars.githubusercontent.com/u/32770312?v=4?s=100" width="100px;" alt="fhdufhdu"/><br /><sub><b>fhdufhdu</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=fhdufhdu" title="Code">💻</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://koderpark.dev"><img src="https://avatars.githubusercontent.com/u/43494256?v=4?s=100" width="100px;" alt="박성훈 / Koder"/><br /><sub><b>박성훈 / Koder</b></sub></a><br /><a href="#business-Koderpark" title="Business development">💼</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Kyu0"><img src="https://avatars.githubusercontent.com/u/56034014?v=4?s=100" width="100px;" alt="Kyu0"/><br /><sub><b>Kyu0</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=Kyu0" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://cjh970422.tistory.com/"><img src="https://avatars.githubusercontent.com/u/39554558?v=4?s=100" width="100px;" alt="Choi Jun Ho"/><br /><sub><b>Choi Jun Ho</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=junhochoi-dev" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://velog.io/@bluejoyq"><img src="https://avatars.githubusercontent.com/u/42014299?v=4?s=100" width="100px;" alt="bluejoyq"/><br /><sub><b>bluejoyq</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=bluejoyq" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zosungwoo"><img src="https://avatars.githubusercontent.com/u/30895117?v=4?s=100" width="100px;" alt="Sungwoo Cho"/><br /><sub><b>Sungwoo Cho</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/issues?q=author%3Azosungwoo" title="Bug reports">🐛</a> <a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=zosungwoo" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://whatasame.tistory.com"><img src="https://avatars.githubusercontent.com/u/97666463?v=4?s=100" width="100px;" alt="Jeonggyu Choi"/><br /><sub><b>Jeonggyu Choi</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=whatasame" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kickbelldev"><img src="https://avatars.githubusercontent.com/u/31813451?v=4?s=100" width="100px;" alt="Jongchan"/><br /><sub><b>Jongchan</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=kickbelldev" title="Code">💻</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/terrinens"><img src="https://avatars.githubusercontent.com/u/132042125?v=4?s=100" width="100px;" alt="terrinens"/><br /><sub><b>terrinens</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=terrinens" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/thwang26"><img src="https://avatars.githubusercontent.com/u/102675847?v=4?s=100" width="100px;" alt="Taewon Hwang"/><br /><sub><b>Taewon Hwang</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=thwang26" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tkdcks7"><img src="https://avatars.githubusercontent.com/u/141592320?v=4?s=100" width="100px;" alt="GSC"/><br /><sub><b>GSC</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=tkdcks7" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://velog.io/@sonwj0915"><img src="https://avatars.githubusercontent.com/u/87295692?v=4?s=100" width="100px;" alt="sonwonjae"/><br /><sub><b>sonwonjae</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=sonwonjae" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/medAndro"><img src="https://avatars.githubusercontent.com/u/88672474?v=4?s=100" width="100px;" alt="Meda"/><br /><sub><b>Meda</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=medAndro" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/line1029"><img src="https://avatars.githubusercontent.com/u/95160680?v=4?s=100" width="100px;" alt="Minsoo Jun"/><br /><sub><b>Minsoo Jun</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=line1029" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rninzi"><img src="https://avatars.githubusercontent.com/u/90755664?v=4?s=100" width="100px;" alt="minzzzi"/><br /><sub><b>minzzzi</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=rninzi" title="Code">💻</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/seungwone"><img src="https://avatars.githubusercontent.com/u/109544413?v=4?s=100" width="100px;" alt="Seungwon Lee"/><br /><sub><b>Seungwon Lee</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=seungwone" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/K-DaHee"><img src="https://avatars.githubusercontent.com/u/168415314?v=4?s=100" width="100px;" alt="김다희"/><br /><sub><b>김다희</b></sub></a><br /><a href="https://github.com/BaekjoonHub/BaekjoonHub/commits?author=K-DaHee" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
+## 📌 CodeTestLog란?
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+**CodeTestLog**는 [BaekjoonHub](https://github.com/BaekjoonHub/BaekjoonHub)를 기반으로 프로그래머스 전용으로 커스터마이징한 크롬 확장프로그램입니다.
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+문제를 풀면 **정답/오답/실행** 여부와 관계없이 자동으로 GitHub에 커밋되어, 단순한 정답 기록을 넘어 **전체 풀이 과정**을 시간순으로 추적할 수 있습니다.
 
-<br/>
+### ✨ 주요 특징
 
-## 목차
+- ✅ **정답뿐 아니라 오답·실행 기록까지** 자동 커밋
+- 🕐 **타임스탬프 파일명** (`20260405_130000_run_문제명.py`) 으로 시간순 정렬
+- 📝 **정답 시 README.md 자동 생성** — 복기 섹션 포함
+- 👥 **스터디 그룹 공유 레포** 지원 (닉네임별 폴더 분리)
+- 🔌 기존 BaekjoonHub 토큰 재사용 가능
 
-1. [크롬 마켓](#지금-크롬-마켓에서-확인하세요)
-2. [백준허브란?](#백준허브란what-is-baekjoonhub)
-3. [설치 및 연동](#설치-및-연동how-to-set-it-up)
-4. [작동 원리](#작동원리how-it-works)
-   1. [동작 화면](#1-동작-화면)
-   2. [업로드 시점](#2-업로드-시점)
-   3. [백준 제출 기준](#4-백준-제출-기준)
-   4. [저장되는 정보](#3-저장되는-정보)
-5. [링크 및 문서](#링크-및-문서)
-   <br />
-   <br />
+---
 
-<!--- 마켓  --->
+## ⚙️ 설치 및 설정 가이드
 
-## 지금 크롬 마켓에서 확인하세요!
+### STEP 1. 소스코드 다운로드
 
-<a href="https://chrome.google.com/webstore/detail/ccammcjdkpgjmcpijpahlehmapgmphmk">
-  <img src="assets/extension/bookmark1.png"/>
-</a>
+터미널(또는 VS Code 터미널)에서 아래 명령어를 실행합니다.
 
-<a href="https://chrome.google.com/webstore/detail/ebcggjojbiojfmiaammkfbdgmlpfflig">
-  <img src="assets/extension/bookmark2.png"/>
-</a>
+```bash
+git clone https://github.com/oosuhada/code-test-log.git
+```
 
-<!--- 소개 --->
+또는 GitHub 웹사이트에서 **Code → Download ZIP** 으로 다운받아 압축 해제해도 됩니다.
 
-## 백준허브란?(What is BaekjoonHub?)
+> ⚠️ 기존에 **백준허브(BaekjoonHub)** 가 설치되어 있다면 먼저 삭제하는 것을 권장합니다. 같은 페이지에서 충돌이 발생할 수 있습니다.
 
-<p>
-  백준 허브는 LeetCode의 개인 풀이를 github에 자동 푸시해주는 <a href="https://github.com/QasimWani/LeetHub">LeetHub</a>에서 영감을 받아 만든 프로젝트입니다. <a href="https://www.acmicpc.net/">백준</a>, <a href="https://programmers.co.kr/">프로그래머스</a>, <a href="https://level.goorm.io/">goormlevel</a>를 통해 알고리즘 공부를 하시는 분들이 더욱 쉽게 코드를 저장하고 관리할 수 있게 하도록 만들었으며, 오픈소스 프로젝트로 여러분의 조언과 참여를 환영합니다.<br/>
-</p>
-<p>
-  BaekjoonHub is a chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="https://www.acmicpc.net/">Baekjoon Online Judge</a> problem. This project was based off of <a href="https://github.com/QasimWani/LeetHub">LeetHub</a>, a similar extension for Leetcode.
-</p>
-👉 <a href="https://github.com/flaxinger/BOJAutoPush"> 예시 Repository</a> 보러 가기<br/>
+---
 
-<br />
-<br />
+### STEP 2. 크롬 확장프로그램 설치
 
-<!--- 설치 및 연동 --->
+1. 크롬 주소창에 아래를 입력해 확장프로그램 관리 페이지로 이동합니다.
+   ```
+   chrome://extensions
+   ```
+2. 오른쪽 상단의 **개발자 모드**를 켭니다.
+3. **압축 해제된 확장프로그램 로드 (Load unpacked)** 버튼을 클릭합니다.
+4. STEP 1에서 클론하거나 압축 해제한 `code-test-log` 폴더를 선택하면 설치 완료입니다.
 
-## 설치 및 연동(How to set it up)
+> 💡 설치 후 크롬 우측 상단 퍼즐 아이콘(🧩)에서 CodeTestLog를 **핀 고정**해두면 편리합니다.
 
-<ol>
-  <li>크롬에서 설치 후 우측 상단의 popup 버튼을 클릭합니다.</li>
-  <li>"Authorize with GitHub" 버튼을 누르고 인증을 완료하면 Repository 연동 화면이 표시됩니다.</li>
-  <li>Repository를 신규로 만들거나 기존에 존재하는 Repository에 연동 가능합니다. (신규 Repository 생성시 visibility 기본값은 private으로 되어있습니다)</li>
-  <li>디렉토리 구조를 플랫폼별로 또는 언어별로 하는 옵션이 있습니다.</li>
-  <li>Get Started 버튼을 누르면 링크가 완료됩니다.</li>
-  <li>이후 제출화면이 감지되면 자동으로 업로드됩니다.</li>
-</ol>
-<br />
-<br />
+---
 
-<!--- 작동 원리 --->
+### STEP 3. GitHub 토큰 입력
 
-## 작동원리(How it works)
+확장프로그램을 열면 GitHub Personal Access Token을 입력하는 화면이 나옵니다.
 
-<p>백준허브는 Github API를 이용합니다.</p>
-<p>코드가 제출되면 정답여부를 식별하고 제출된 코드와 메타데이터를 파싱해서 Github API를 통해 Repository에 반영합니다.</p>
+#### 이미 백준허브를 쓴 적 있다면?
 
-### 1. 동작 화면
+백준허브 설치 시 발급한 토큰을 **그대로 재사용**할 수 있습니다. 저장해둔 토큰을 붙여넣으세요.
 
-![](assets/extension/Baekjoon.gif)
+#### 토큰 새로 발급하는 방법
 
-<div align="center">백준 동작 화면</div>
-<br/>
+1. GitHub 로그인 → 우측 상단 프로필 아이콘 → **Settings**
+2. 좌측 사이드바 최하단 **Developer settings** 클릭
+3. **Personal access tokens → Tokens (classic)** 선택
+4. **Generate new token (classic)** 클릭
+5. Note(이름)는 자유롭게 입력, 권한은 **`repo` 항목만 체크**
+6. **Generate token** 클릭 후 발급된 토큰 즉시 복사
 
-![](assets/extension/Programmers.gif)
+> ⚠️ **토큰은 페이지를 벗어나면 다시 볼 수 없습니다.** 반드시 복사해두세요.
 
-<div align="center">프로그래머스 동작 화면</div>
-<br/>
+복사한 토큰을 확장프로그램 입력창에 붙여넣고 **Authenticate** 버튼을 클릭합니다.
 
-![](assets/extension/SWExpertAcademy.gif)
+---
 
-<div align="center">SW Expert Academy 동작 화면</div>
-<br/>
+### STEP 4. 스터디 레포지토리 연결
 
-![](assets/extension/goormlevel.gif)
+1. 확장프로그램 설정 페이지에서 **기존 레포지토리 연결 (Link an Existing Repository)** 선택
+2. 아래 표에서 **본인 닉네임에 해당하는 주소**를 입력합니다.
 
-<div align="center">goormlevel 동작 화면</div>
+   | 닉네임 | 입력할 주소 |
+   |--------|------------|
+   | oosu | `https://github.com/Minji6/algolog/tree/main/oosu` |
+   | minji | `https://github.com/Minji6/algolog/tree/main/minji` |
+   | Seunghyun | `https://github.com/Minji6/algolog/tree/main/Seunghyun` |
 
-### 2. 업로드 시점
+3. **Get Started** 버튼을 클릭하면 연결 완료입니다.
 
-<p>백준허브는 기본적으로 풀이 채점 후 정답임을 감지하여 작동합니다.</p>
-<p>다만 SW Expert Academy 플랫폼은 정답을 맞추면 "백준허브로 업로드" 버튼이 생깁니다.</p>
-<p>업로드 도중 페이지 이동은 권장드리지 않습니다.</p>
+> ⚠️ 레포 주소만(`https://github.com/Minji6/algolog`) 입력하면 루트 폴더에 파일이 올라갑니다. **반드시 닉네임 폴더까지 포함**해서 입력하세요.
 
-### 3. 백준 제출 기준
+---
 
-<p>백준의 경우 "내 제출" 목록을 정렬해서 가장 적합한 제출을 업로드하며 비교 요소는 아래와 같습니다.</p>
+### STEP 5. 프로그래머스에서 문제 풀기
 
-1. 서브태스크가 있는 문제일 경우 점수가 더 높은 제출
-2. 실행시간이 짧은 제출
-3. 사용메모리가 적은 제출
-4. 코드길이가 짧은 제출
-5. 제출번호가 더 큰 제출(i.e. 최신 제출)
+설정이 완료되면 이후부터는 완전 자동입니다. 아래 세 가지 상황에서 자동으로 GitHub에 커밋됩니다.
 
-### 4. 저장되는 정보
+| 상황 | 생성되는 파일 예시 |
+|------|-------------------|
+| ▶️ **코드 실행** 버튼 클릭 | `20260405_130000_run_문자열 출력하기.py` |
+| ❌ **제출 후 오답** | `20260405_130100_wrong_문자열 출력하기.py` |
+| ✅ **제출 후 정답** | `20260405_130200_correct_문자열 출력하기.py` + `README.md` |
 
-<p>플랫폼 별로 문제 해결 시 파싱 후 저장되는 정보는 다음과 같습니다.</p>
+파일명 앞의 날짜·시간 덕분에 GitHub에서 **시간순으로 자동 정렬**되어, 풀이 과정 전체를 한눈에 볼 수 있습니다.
 
-<table>
-  <tbody>
-    <tr>
-      <th>플랫폼</th>
-      <th align="center">문제 메타 정보</th>
-      <th align="center">사용자 제출 정보</th>
-    </tr>
-    <tr>
-      <td>백준</td>
-      <td align="left">
-        <li>문제 제목</li>
-        <li>문제 아이디</li>
-        <li>문제 링크</li>
-        <li>문제 등급</li>
-        <li>문제 설명</li>
-        <li>사용 언어</li>
-        <li>문제 분류</li>
-      </td>
-      <td align="left">
-        <li>코드</li>
-        <li>사용한 메모리</li>
-        <li>실행 시간</li>
-      </td>
-    </tr>
-    <tr>
-      <td>프로그래머스</td>
-      <td align="left">
-        <li>문제 제목</li>
-        <li>문제 아이디</li>
-        <li>문제 링크</li>
-        <li>문제 등급</li>
-        <li>문제 설명</li>
-        <li>사용 언어</li>
-      </td>
-      <td align="left">
-        <li>코드</li>
-        <li>사용한 메모리</li>
-        <li>실행 시간</li>
-      </td>
-    </tr>
-    <tr>
-      <td>SW Expert Academy</td>
-      <td align="left">
-        <li>문제 제목</li>
-        <li>문제 아이디</li>
-        <li>문제 링크</li>
-        <li>문제 등급</li>
-        <li>사용 언어</li>
-      </td>
-      <td align="left">
-        <li>코드</li>
-        <li>사용한 메모리</li>
-        <li>실행 시간</li>
-        <li>코드 길이</li>
-      </td>
-    </tr>
-    <tr>
-      <td>goormlevel</td>
-      <td align="left">
-        <li>문제 제목</li>
-        <li>시험 아이디</li>
-        <li>문제 아이디</li>
-        <li>문제 링크</li>
-        <li>사용 언어</li>
-      </td>
-      <td align="left">
-        <li>코드</li>
-        <li>사용한 메모리</li>
-        <li>실행 시간</li>
-      </td>
-    </tr>
-  </tbody>
-</table>
+> 💡 **정답 커밋 시 자동 생성되는 `README.md`** 에는 오답 기록, 새로 배운 개념, 헷갈렸던 부분 등 복기용 섹션이 포함되어 있습니다. 풀고 나서 직접 채워넣으세요.
 
-<br />
-<br />
+---
 
-<!--- 링크 및 문서 --->
+## 📁 레포지토리 구조 예시
 
-## 링크 및 문서
+```
+algolog/
+├── oosu/
+│   └── 문자열 출력하기/
+│       ├── 20260405_130000_run_문자열 출력하기.py
+│       ├── 20260405_130100_wrong_문자열 출력하기.py
+│       ├── 20260405_130200_correct_문자열 출력하기.py
+│       └── README.md
+├── minji/
+│   └── ...
+└── Seunghyun/
+    └── ...
+```
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/BaekjoonHub/BaekjoonHub/issues" title="버그신고">
-          <img src="./assets/readme_icons/bug.png" width="100" height="100">
-      </a><br/><sub><b>버그 신고</b></sub>
-    </td>
-    <td align="center">
-      <a href="https://open.kakao.com/o/gOWn2ySd" title="카카오톡 협업방">
-        <img src="./assets/readme_icons/kakao.png" width="100" height="100">
-      </a><br/><sub><b>카카오톡 협업방</b></sub>
-    </td>
-  </tr>
-</table>
+---
 
-<br />
-<br />
+## 🔄 연결 변경 및 초기화
+
+연결된 레포를 변경하고 싶다면:
+
+1. 확장프로그램 설정 페이지 하단의 **"Linked the wrong repo? Unlink."** 클릭
+2. 연결 해제 후 **STEP 4부터 다시 진행**
+
+---
+
+## ❓ 자주 묻는 질문 (FAQ)
+
+**Q. 문제를 풀었는데 커밋이 안 돼요.**
+- 확장프로그램이 활성화 상태인지 확인하세요 (크롬 아이콘이 컬러로 표시되어야 합니다).
+- 레포 연결이 제대로 되어 있는지 확인하세요 (STEP 4 재확인).
+- GitHub 토큰의 `repo` 권한이 포함되어 있는지 확인하세요.
+- 토큰 만료 여부를 확인하고, 만료됐다면 STEP 3부터 다시 진행하세요.
+
+**Q. 백준허브와 동시에 사용할 수 있나요?**
+- 같은 페이지에서 충돌이 발생할 수 있어 권장하지 않습니다. 백준허브는 삭제 후 사용을 권장합니다.
+
+**Q. Python 외 다른 언어도 지원하나요?**
+- 프로그래머스에서 사용하는 모든 언어(Java, C++, JavaScript 등)를 지원합니다. 파일 확장자가 자동으로 설정됩니다.
+
+**Q. 프라이빗 레포에도 연결할 수 있나요?**
+- 네, GitHub 토큰에 `repo` 권한이 있다면 프라이빗 레포도 연결 가능합니다.
+
+**Q. 확장프로그램 업데이트는 어떻게 하나요?**
+- 소스코드 폴더에서 `git pull`로 최신 버전을 받은 후, `chrome://extensions` 페이지에서 새로고침(🔄) 버튼을 클릭하세요.
+
+---
+
+## 🛠️ 개발 정보
+
+- **기반**: [BaekjoonHub](https://github.com/BaekjoonHub/BaekjoonHub) (오픈소스)
+- **커스터마이징**: 프로그래머스 전용 + 오답·실행 기록 지원 + 타임스탬프 파일명 + 스터디 폴더 구조
+- **소스코드**: [github.com/oosuhada/code-test-log](https://github.com/oosuhada/code-test-log)
+
+---
+
+## 📜 라이선스
+
+MIT License — 자유롭게 포크하고 수정하여 사용하실 수 있습니다.
