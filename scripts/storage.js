@@ -167,6 +167,14 @@ async function getModeType() {
   return await getObjectFromLocalStorage('mode_type');
 }
 
+async function getUserPrefix() {
+  return (await getObjectFromLocalStorage('BaekjoonHub_userPrefix')) || '';
+}
+
+async function saveUserPrefix(prefix) {
+  return await saveObjectInLocalStorage({ BaekjoonHub_userPrefix: prefix });
+}
+
 async function getSaveExamplesOption() {
   return (await getObjectFromLocalStorage('bjhSaveExamples')) === true;
 }
@@ -300,11 +308,15 @@ async function saveDirectoryTemplate(platform, template) {
 }
 
 async function buildDirectory(platform, variables) {
+  const prefix = await getUserPrefix();
   const template = await getDirectoryTemplate(platform);
+  let dir;
   if (template) {
-    return applyDirectoryTemplate(template, variables);
+    dir = applyDirectoryTemplate(template, variables);
+  } else {
+    dir = await getDirNameByOrgOption(variables._defaultDir, variables.language);
   }
-  return getDirNameByOrgOption(variables._defaultDir, variables.language);
+  return prefix ? `${prefix}/${dir}` : dir;
 }
 
 

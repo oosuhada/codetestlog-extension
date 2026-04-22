@@ -5,13 +5,40 @@ const $id = (id) => document.getElementById(id);
 
 const option = () => $id('type').value;
 
+/**
+ * 입력값에서 레포명(owner/repo)과 서브폴더 prefix를 파싱합니다.
+ * 지원 형식:
+ *   - Minji6/algolog/oosu
+ *   - https://github.com/Minji6/algolog/tree/main/oosu
+ *   - https://github.com/Minji6/algolog  (prefix 없음)
+ *   - Minji6/algolog                     (prefix 없음)
+ */
+const parseRepoInput = (input) => {
+  input = input.trim();
+
+  // GitHub URL 형식: https://github.com/owner/repo[/tree/branch/...prefix...]
+  const urlMatch = input.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/[^/]+\/(.+))?/);
+  if (urlMatch) {
+    const owner = urlMatch[1];
+    const repo = urlMatch[2].replace(/\.git$/, '');
+    const prefix = urlMatch[3] ? urlMatch[3].replace(/\/$/, '') : '';
+    return { repoName: `${owner}/${repo}`, prefix };
+  }
+
+  // owner/repo/prefix 형식
+  const parts = input.replace(/\.git$/, '').split('/').filter(Boolean);
+  if (parts.length >= 3) {
+    return { repoName: `${parts[0]}/${parts[1]}`, prefix: parts.slice(2).join('/') };
+  }
+  if (parts.length === 2) {
+    return { repoName: `${parts[0]}/${parts[1]}`, prefix: '' };
+  }
+  return { repoName: input, prefix: '' };
+};
+
 const repositoryName = () => {
   const input = $id('name').value.trim();
-  const match = input.match(/^https?:\/\/github\.com\/[^/]+\/([^/]+)/);
-  if (match) {
-    return match[1].replace(/\.git$/, '');
-  }
-  return input;
+  return parseRepoInput(input).repoName;
 };
 
 /* Status codes for creating of repo */
@@ -206,6 +233,9 @@ const unlinkRepo = () => {
   chrome.storage.local.set({ BaekjoonHub_disOption: 'platform' }, () => {
     console.log('DisOption Reset');
   });
+  chrome.storage.local.remove('BaekjoonHub_userPrefix', () => {
+    console.log('User prefix cleared');
+  });
   $id('hook_mode').classList.remove('hidden');
   $id('commit_mode').classList.add('hidden');
 };
@@ -277,7 +307,10 @@ $id('hook_button').addEventListener('click', () => {
             errorEl.hidden = false;
             successEl.hidden = true;
           } else {
-            linkRepo(token, `${username}/${repositoryName()}`, false);
+            const { repoName } = parseRepoInput($id('name').value.trim());
+            // repoName이 이미 owner/repo 형태면 그대로, 아니면 username 붙임
+            const fullName = repoName.includes('/') ? repoName : `${username}/${repoName}`;
+            linkRepo(token, fullName, false);
           }
         });
       }
@@ -287,6 +320,12 @@ $id('hook_button').addEventListener('click', () => {
   const org_option = $id('org_option').value;
   chrome.storage.local.set({ BaekjoonHub_OrgOption: org_option }, () => {
     console.log(`Set Organize by ${org_option}`);
+  });
+
+  // 입력값에서 prefix 파싱 후 저장
+  const { prefix: userPrefix } = parseRepoInput($id('name').value.trim());
+  chrome.storage.local.set({ BaekjoonHub_userPrefix: userPrefix }, () => {
+    console.log(`Set user prefix: "${userPrefix}"`);
   });
 });
 

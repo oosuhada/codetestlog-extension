@@ -11,8 +11,8 @@ const currentUrl = window.location.href;
 
 // 프로그래머스 연습 문제 주소임을 확인하고, 맞다면 로더를 실행
 if (currentUrl.includes('/learn/courses/30') && currentUrl.includes('lessons')) {
-  startLoader();
   attachRunCodeListener();
+  attachSubmitListener();
 }
 
 if (currentUrl.includes('/learn/challenges')) {
@@ -68,6 +68,32 @@ function startLoader() {
 
 function stopLoader() {
   clearInterval(loader);
+}
+
+/**
+ * '제출 후 채점하기' 버튼(#submit-code) 클릭 시 로더를 시작합니다.
+ * 버튼이 아직 렌더링 안 됐을 수 있으므로 MutationObserver로 대기합니다.
+ */
+function attachSubmitListener() {
+  const tryAttach = () => {
+    const submitBtn = document.querySelector('button#submit-code');
+    if (submitBtn && !submitBtn.dataset.bjhSubmitAttached) {
+      submitBtn.dataset.bjhSubmitAttached = 'true';
+      submitBtn.addEventListener('click', async () => {
+        const enable = await checkEnable();
+        if (!enable) return;
+        log('제출 버튼 클릭 - 채점 결과 감지 시작');
+        // 코드 실행 커밋이 진행 중이더라도 제출은 별도로 처리하기 위해 상태 초기화
+        uploadState.uploading = false;
+        startLoader();
+      });
+      log('제출 버튼 리스너 등록 완료');
+    }
+  };
+
+  tryAttach();
+  const observer = new MutationObserver(tryAttach);
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 /**
@@ -130,32 +156,7 @@ async function beginUpload(bojData, isPassed = true) {
     await versionUpdate();
   }
 
-  /* ✅ 정답인 경우에만 중복 업로드 체크 (오답은 항상 새로 커밋) */
-  if (isPassed) {
-    const cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`);
-    const calcSHA = calculateBlobSHA(bojData.code);
-    log('cachedSHA', cachedSHA, 'calcSHA', calcSHA);
-
-    if (!isNull(cachedSHA) && cachedSHA === calcSHA) {
-      markUploadedCSS(stats.branches, bojData.directory);
-      console.log(`현재 제출번호를 업로드한 기록이 있습니다. problemId ${bojData.problemId}`);
-      uploadState.uploading = false;
-      return;
-    }
-
-    if (isNull(cachedSHA)) {
-      const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
-      if (remoteFile && remoteFile.sha === calcSHA) {
-        markUploadedCSS(stats.branches, bojData.directory);
-        console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
-        uploadState.uploading = false;
-        return;
-      }
-      console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
-    }
-  }
-
-  /* 신규 제출이거나 오답이라면 커밋 */
+  /* 항상 새로 커밋 */
   await uploadOneSolveProblemOnGit(bojData, isPassed, markUploadedCSS);
   uploadState.uploading = false;
 }

@@ -16,21 +16,44 @@ async function uploadOneSolveProblemOnGit(bojData, isPassed = true, cb) {
   // 커밋 메시지 및 파일명 분기
   // isPassed: true=정답, false=오답, null=코드 실행
   if (isPassed === true) {
-    bojData.message = `✅ 정답: ${bojData.message}`;
-  } else if (isPassed === false) {
-    const timestamp = Math.floor(Date.now() / 1000);
+    const now = new Date();
+    const datetime = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') + '_' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
     const dotIndex = bojData.fileName.lastIndexOf('.');
     const name = bojData.fileName.substring(0, dotIndex);
     const ext = bojData.fileName.substring(dotIndex);
-    bojData.fileName = `${name}_wrong_${timestamp}${ext}`;
+    bojData.fileName = `${datetime}_correct_${name}${ext}`;
+    bojData.message = `✅ 정답: ${bojData.message}`;
+  } else if (isPassed === false) {
+    const now = new Date();
+    const datetime = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') + '_' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
+    const dotIndex = bojData.fileName.lastIndexOf('.');
+    const name = bojData.fileName.substring(0, dotIndex);
+    const ext = bojData.fileName.substring(dotIndex);
+    bojData.fileName = `${datetime}_wrong_${name}${ext}`;
     bojData.message = `❌ 오답: ${bojData.message}`;
   } else {
     // 코드 실행 (isPassed === null)
-    const timestamp = Math.floor(Date.now() / 1000);
+    const now = new Date();
+    const datetime = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0') + '_' +
+      String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0') +
+      String(now.getSeconds()).padStart(2, '0');
     const dotIndex = bojData.fileName.lastIndexOf('.');
     const name = bojData.fileName.substring(0, dotIndex);
     const ext = bojData.fileName.substring(dotIndex);
-    bojData.fileName = `${name}_run_${timestamp}${ext}`;
+    bojData.fileName = `${datetime}_run_${name}${ext}`;
     bojData.message = `▶️ 코드 실행: ${bojData.message}`;
   }
 
@@ -170,7 +193,7 @@ async function uploadAllSolvedProblemProgrammers() {
     // 5. 단일 커밋으로 일괄 업로드
     if (tree_items.length !== 0) {
       const treeData = await git.createTree(refSHA, tree_items);
-      const commitSHA = await git.createCommit('✅ 전체 코드 업로드 -BaekjoonHub', treeData.sha, refSHA);
+      const commitSHA = await git.createCommit('✅ 전체 코드 업로드 -code-test-log', treeData.sha, refSHA);
       await git.updateHead(ref, commitSHA);
       MultiloaderSuccess();
       treeData.tree.forEach((item) => {
