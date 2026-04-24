@@ -34,6 +34,7 @@ const currentUrl = window.location.href;
 if (currentUrl.includes('/learn/courses/30') && currentUrl.includes('lessons')) {
   attachRunCodeListener();
   attachSubmitListener();
+  scheduleProblemContextNotification();
 }
 
 if (currentUrl.includes('/learn/challenges')) {
@@ -100,6 +101,67 @@ function startLoader() {
 function stopLoader() {
   clearInterval(loader);
   loader = null;
+}
+
+function createCtlEventId(site, problemId, signature) {
+  const randomPart = Math.random().toString(36).slice(2);
+  return `${site}:${problemId || 'unknown'}:${signature || Date.now()}:${Date.now()}:${randomPart}`;
+}
+
+function sendCtlRuntimeMessage(message) {
+  try {
+    chrome.runtime.sendMessage(message, () => {
+      if (chrome.runtime.lastError) {
+        log('[CTL] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
+      }
+    });
+  } catch (error) {
+    log('[CTL] Side Panel 메시지 전달 실패:', error);
+  }
+}
+
+async function notifySidePanelProblemContext() {
+  const problemId = parseProgrammersProblemId();
+  const problemName = parseProgrammersTitle();
+  const attemptCount = typeof getAttemptCount === 'function'
+    ? await getAttemptCount('programmers', problemId)
+    : 0;
+
+  sendCtlRuntimeMessage({
+    type: 'CTL_PROBLEM_CONTEXT',
+    payload: {
+      problemId,
+      problemName,
+      site: '프로그래머스',
+      attemptCount,
+      timestamp: Date.now(),
+    },
+  });
+}
+
+function scheduleProblemContextNotification() {
+  notifySidePanelProblemContext();
+  setTimeout(notifySidePanelProblemContext, 1500);
+}
+
+function notifySidePanelCommitEvent({ phase, bojData, result, eventId, success, error }) {
+  sendCtlRuntimeMessage({
+    type: 'CTL_COMMIT_EVENT',
+    payload: {
+      eventId,
+      phase,
+      result,
+      problemId: bojData.problemId || parseProgrammersProblemId(),
+      problemName: bojData.title || parseProgrammersTitle(),
+      site: '프로그래머스',
+      fileName: bojData.fileName || '',
+      commitPath: bojData.directory || '',
+      attemptCount: bojData.attemptCount || 0,
+      success,
+      errorMessage: error ? error.message : '',
+      timestamp: Date.now(),
+    },
+  });
 }
 
 /**
@@ -234,9 +296,17 @@ async function beginUpload(bojData, result = CTL_RESULT.CORRECT, signature = '')
   if (uploadState.uploading) return;
   uploadState.uploading = true;
   SubmissionState.markCommitStart(signature);
+  const commitEventId = createCtlEventId('programmers', bojData.problemId, signature);
   log('bojData', bojData, 'result', result);
 
   startUpload();
+  notifySidePanelCommitEvent({
+    phase: 'start',
+    bojData,
+    result,
+    eventId: commitEventId,
+    success: true,
+  });
 
   /* 항상 새로 커밋 */
   try {
@@ -250,9 +320,24 @@ async function beginUpload(bojData, result = CTL_RESULT.CORRECT, signature = '')
     }
 
     await uploadOneSolveProblemOnGit(bojData, result, markUploadedCSS);
+    notifySidePanelCommitEvent({
+      phase: 'complete',
+      bojData,
+      result,
+      eventId: commitEventId,
+      success: true,
+    });
     console.log(`[CTL] 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
   } catch (error) {
     markUploadFailedCSS();
+    notifySidePanelCommitEvent({
+      phase: 'complete',
+      bojData,
+      result,
+      eventId: commitEventId,
+      success: false,
+      error,
+    });
     console.error('[CTL] 커밋 실패:', error);
   } finally {
     uploadState.uploading = false;
