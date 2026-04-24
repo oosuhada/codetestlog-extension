@@ -1,4 +1,19 @@
 /*
+ * [CTL Analysis - P01]
+ * 제출 감지 방식: programmers.js가 제출 버튼 클릭 후 결과 모달을 폴링하고, 결과가 준비되면 parseData()를 호출한다.
+ * 결과 판별 위치: programmers.js의 getSolvedResultInfo()와 normalizeProgrammersResult().
+ * 정답/오답 분기: uploadfunctions.js의 uploadOneSolveProblemOnGit()이 CTL_RESULT 기반으로 커밋 경로/파일명/메시지를 생성한다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: data-challenge-level 원시값을 그대로 써서 `0` 같은 숫자 단독 레벨 폴더가 생길 수 있다.
+ *   - BUG-2: 파일명/경로 생성 책임이 parsing.js와 uploadfunctions.js에 흩어져 결과별 파일 생성 규칙이 중복된다.
+ *
+ * 기존 스토리지 키 목록: (마이그레이션 대상)
+ *   - 'BaekjoonHub_dirTemplate_${platform}' → ctl_dir_template_${platform}
+ *   - 'BaekjoonHub_userPrefix' → ctl_user_prefix
+ */
+
+/*
   문제가 맞았다면 문제 관련 데이터를 파싱하는 함수의 모음입니다.
   모든 해당 파일의 모든 함수는 parseData()를 통해 호출됩니다.
 */
@@ -52,21 +67,125 @@ function extractTaggedComments(code) {
   };
 }
 
+/**
+ * 프로그래머스 문제 ID 파싱
+ * 반환: 문자열 문제 ID 또는 "unknown"
+ */
+function parseProgrammersProblemId(doc = document) {
+  try {
+    const lessonEl = doc.querySelector('.lesson-content') || doc.querySelector('[data-lesson-id]');
+    const id = lessonEl && lessonEl.getAttribute('data-lesson-id');
+    if (id) return String(id).trim();
+  } catch (_) {}
+
+  try {
+    const match = (doc.location ? doc.location.href : window.location.href).match(/lessons\/(\d+)/);
+    if (match) return match[1];
+  } catch (_) {}
+
+  return 'unknown';
+}
+
+/**
+ * 프로그래머스 문제 제목 파싱
+ * 반환: 제목 또는 "unknown"
+ */
+function parseProgrammersTitle(doc = document) {
+  try {
+    const titleEl = doc.querySelector('.algorithm-title .challenge-title')
+      || doc.querySelector('.challenge-title')
+      || doc.querySelector('h2');
+    const title = titleEl && titleEl.textContent.replace(/\\n/g, '').trim();
+    if (title) return title;
+  } catch (_) {}
+
+  try {
+    const title = doc.title.replace(/프로그래머스|코딩테스트 연습|[|:-]/g, '').trim();
+    if (title) return title;
+  } catch (_) {}
+
+  return 'unknown';
+}
+
+/**
+ * 프로그래머스 문제 레벨 파싱
+ * 반환: "lv0"~"lv5" 또는 "lv?" (실패 시)
+ * 절대 undefined, null, 빈 문자열 반환 금지
+ */
+function parseProgrammersLevel(doc = document) {
+  try {
+    const lessonEl = doc.querySelector('.lesson-content') || doc.querySelector('[data-challenge-level]');
+    const level = lessonEl && lessonEl.getAttribute('data-challenge-level');
+    if (level !== null && level !== undefined && `${level}`.trim() !== '') {
+      const match = `${level}`.match(/\d/);
+      return match ? `lv${match[0]}` : `lv${level}`.toLowerCase();
+    }
+  } catch (_) {}
+
+  try {
+    const badge = doc.querySelector('.level-badge, [class*="level"]');
+    if (badge) {
+      const text = badge.textContent.trim();
+      const match = text.match(/Lv\.?\s*(\d)/i);
+      if (match) return `lv${match[1]}`;
+    }
+  } catch (_) {}
+
+  try {
+    const title = doc.title;
+    const match = title.match(/Lv\.?\s*(\d)/i);
+    if (match) return `lv${match[1]}`;
+  } catch (_) {}
+
+  return 'lv?';
+}
+
+/**
+ * 프로그래머스 언어 파싱
+ * 반환: 언어명 또는 "Unknown"
+ */
+function parseProgrammersLanguage(doc = document) {
+  try {
+    const language = doc.querySelector('div#tour7 > button, .language-select button');
+    const text = language && language.textContent.trim();
+    if (text) return text;
+  } catch (_) {}
+
+  try {
+    const langTab = doc.querySelector('div.editor > ul > li.nav-item > a, .editor .nav-item a');
+    const text = langTab && langTab.textContent.trim();
+    if (text) return text.split('.')[0] || text;
+  } catch (_) {}
+
+  return 'Unknown';
+}
+
+function parseProgrammersLanguageExtension(doc = document, language = 'Unknown') {
+  try {
+    const langTab = doc.querySelector('div.editor > ul > li.nav-item > a, .editor .nav-item a');
+    const text = langTab && langTab.textContent.trim();
+    const ext = text && text.split('.').pop();
+    if (ext && ext !== text) return ext;
+  } catch (_) {}
+
+  return langToExt(language);
+}
+
 
 
 async function parseData() {
   const link = document.querySelector('head > meta[name$=url]').content.replace(/\?.*/g, '').trim();
-  const lessonEl = document.querySelector('.lesson-content') || document.querySelector('[data-lesson-id]');
-  const problemId = lessonEl.getAttribute('data-lesson-id');
-  const level = lessonEl.getAttribute('data-challenge-level');
+  const problemId = parseProgrammersProblemId();
+  const level = parseProgrammersLevel();
   const division = [...document.querySelector('ol.breadcrumb').childNodes]
     .filter((x) => x.className !== 'active')
     .map((x) => x.innerText)
     .map((x) => convertSingleCharToDoubleChar(x))
     .reduce((a, b) => `${a}/${b}`);
-  const title = document.querySelector('.algorithm-title .challenge-title').textContent.replace(/\\n/g, '').trim();
+  const title = parseProgrammersTitle();
   const problem_description = document.querySelector('div.guide-section-description > div.markdown').innerHTML;
-  const language_extension = document.querySelector('div.editor > ul > li.nav-item > a').innerText.split('.')[1];
+  const language = parseProgrammersLanguage();
+  const language_extension = parseProgrammersLanguageExtension(document, language);
   const codeTextarea = document.querySelector('textarea#code');
   const codeMirrorEl = document.querySelector('.CodeMirror');
   const fillBlankInputs = document.querySelectorAll('input[name^="input_code"]');
@@ -94,8 +213,6 @@ async function parseData() {
     .map((x) => x.replace(/(?<=[0-9])(?=[A-Za-z])/, ' '));
 
   /*프로그래밍 언어별 폴더 정리 옵션을 위한 언어 값 가져오기*/
-  const language = document.querySelector('div#tour7 > button').textContent.trim();
-
   // 태그 주석 추출
   const { hasNotes, notesMarkdown } = extractTaggedComments(code);
 
@@ -104,14 +221,7 @@ async function parseData() {
 
 async function makeData(origin) {
   const { problem_description, problemId, level, result_message, division, language_extension, title, runtime, memory, code, language, hasNotes, notesMarkdown, link } = origin;
-  const directory = await buildDirectory('programmers', {
-    platform: '프로그래머스',
-    level,
-    id: problemId,
-    title: convertSingleCharToDoubleChar(title),
-    language,
-    _defaultDir: `프로그래머스/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
-  });
+  const directory = buildCommitPath('프로그래머스', level, problemId, title);
   const levelWithLv = `${level}`.includes('lv') ? level : `lv${level}`.replace('lv', 'level ');
   const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -CodeTestLog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
@@ -153,7 +263,20 @@ async function makeData(origin) {
     + `> 다음에 비슷한 문제를 풀 때 떠올려야 할 핵심 포인트를 적어두세요.\n\n`
     + `-\n`;
 
-  return { problemId, directory, message, fileName, readme, code, notesMarkdown, hasNotes };
+  return {
+    problemId,
+    level,
+    title,
+    language,
+    language_extension,
+    directory,
+    message,
+    fileName,
+    readme,
+    code,
+    notesMarkdown,
+    hasNotes,
+  };
 }
 
 /**

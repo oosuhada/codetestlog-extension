@@ -4,7 +4,7 @@ const oAuth2 = {
    * Initialize
    */
   init() {
-    this.KEY = 'BaekjoonHub_token';
+    this.KEY = CTL_STORAGE_KEYS.githubToken;
     this.ACCESS_TOKEN_URL = 'https://github.com/login/oauth/access_token';
     this.AUTHORIZATION_URL = 'https://github.com/login/oauth/authorize';
     this.CLIENT_ID = '975f8d5cf6686dd1faed';
@@ -25,7 +25,7 @@ const oAuth2 = {
       url += this.SCOPES[i];
     }
 
-    chrome.storage.local.set({ pipe_baekjoonhub: true }, () => {
+    chrome.storage.local.set({ [CTL_STORAGE_KEYS.oauthPipe]: true }, () => {
       // opening pipe temporarily
 
       chrome.tabs.create({ url, selected: true }, function () {

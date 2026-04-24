@@ -3,7 +3,8 @@
     가독성을 위해 따로 파일 분리함
 */
 async function checkEnable() {
-  const enable = await getObjectFromLocalStorage('bjhEnable');
+  await ensureCtlStorageReady();
+  const enable = await getObjectFromLocalStorage(CTL_STORAGE_KEYS.isEnabled);
   if (!enable) writeEnableMsgOnLog();
   return enable;
 }

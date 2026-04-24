@@ -131,9 +131,12 @@ const I18N = (() => {
   }
 
   function init(callback) {
-    chrome.storage.local.get('bjh_lang', (data) => {
-      if (data.bjh_lang) {
-        currentLang = data.bjh_lang;
+    const ready = typeof migrateLegacyStorageKeys === 'function'
+      ? migrateLegacyStorageKeys()
+      : Promise.resolve();
+    ready.then(() => chrome.storage.local.get(CTL_STORAGE_KEYS.language, (data) => {
+      if (data[CTL_STORAGE_KEYS.language]) {
+        currentLang = data[CTL_STORAGE_KEYS.language];
       } else {
         currentLang = detectLang();
       }
@@ -143,7 +146,7 @@ const I18N = (() => {
         toggleBtn.addEventListener('click', toggleLanguage);
       }
       if (callback) callback();
-    });
+    }));
   }
 
   function applyTranslations() {
@@ -210,7 +213,7 @@ const I18N = (() => {
 
   function setLanguage(lang) {
     currentLang = lang;
-    chrome.storage.local.set({ bjh_lang: lang });
+    chrome.storage.local.set({ [CTL_STORAGE_KEYS.language]: lang });
     applyTranslations();
     onChangeCallbacks.forEach((cb) => cb(lang));
   }

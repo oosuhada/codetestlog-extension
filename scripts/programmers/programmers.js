@@ -1,3 +1,20 @@
+/*
+ * [CTL Analysis - P01]
+ * 제출 감지 방식: 제출 버튼 클릭 이벤트를 붙인 뒤 결과 모달 DOM을 폴링한다.
+ * 결과 판별 위치: getSolvedResultInfo()가 모달/결과 테이블 텍스트를 수집하고 normalizeProgrammersResult()가 CTL_RESULT로 정규화한다.
+ * 정답/오답 분기: beginUpload()가 CTL_RESULT를 uploadOneSolveProblemOnGit()에 전달한다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: 기존 startLoader()는 '정답'/'틀렸습니다'만 확인해 시간초과/런타임/컴파일 에러 제출을 놓쳤다.
+ *   - BUG-2: 제출 버튼 클릭 때 uploadState.uploading을 강제로 false로 바꿔 진행 중인 커밋과 다음 제출이 충돌할 수 있었다.
+ *
+ * 기존 스토리지 키 목록: (마이그레이션 대상)
+ *   - 'stats' → ctl_stats
+ *   - 'bjhEnable' → ctl_is_enabled
+ *   - 'BaekjoonHub_hook' → ctl_github_repo
+ *   - 'BaekjoonHub_token' → ctl_github_token
+ */
+
 // Set to true to enable console log
 const debug = false;
 
@@ -6,6 +23,10 @@ const debug = false;
   2초마다 문제를 파싱하여 확인
 */
 let loader;
+let pendingProcessTimer = null;
+let submitBaselineSignature = '';
+let submitStartedAt = 0;
+let sawResultClearAfterSubmit = true;
 
 const currentUrl = window.location.href;
 
@@ -41,24 +62,34 @@ if (currentUrl.includes('/learn/challenges')) {
 }
 
 function startLoader() {
+  stopLoader();
+  SubmissionState.transition(SubmissionState.STATE.WAITING);
+
   loader = setInterval(async () => {
     // 기능 Off시 작동하지 않도록 함
     const enable = await checkEnable();
-    if (!enable) stopLoader();
+    if (!enable) {
+      stopLoader();
+      return;
+    }
 
-    const solvedResult = getSolvedResult();
-    if (!solvedResult) return;
+    const solvedResult = getSolvedResultInfo();
+    if (!solvedResult) {
+      sawResultClearAfterSubmit = true;
+      return;
+    }
 
-    const isPassed = solvedResult.includes('정답');
-    const isFailed = solvedResult.includes('틀렸습니다');
+    const isBaselineResult = solvedResult.signature === submitBaselineSignature;
+    if (!sawResultClearAfterSubmit && isBaselineResult && Date.now() - submitStartedAt < 10000) {
+      return;
+    }
 
-    if (isPassed || isFailed) {
-      log(isPassed ? '정답입니다. 업로드를 시작합니다.' : '오답입니다. 오답 업로드를 시작합니다.');
+    const result = normalizeProgrammersResult(solvedResult.rawResult);
+    if (result) {
+      log(`[CTL] ${result} 결과 감지. 업로드를 시작합니다.`, solvedResult.rawResult);
       stopLoader();
       try {
-        const bojData = await parseData();
-        if (isNull(bojData)) return;
-        await beginUpload(bojData, isPassed);
+        await handleProgrammersResult(solvedResult.rawResult, solvedResult.signature);
       } catch (error) {
         log(error);
       }
@@ -68,6 +99,7 @@ function startLoader() {
 
 function stopLoader() {
   clearInterval(loader);
+  loader = null;
 }
 
 /**
@@ -83,8 +115,11 @@ function attachSubmitListener() {
         const enable = await checkEnable();
         if (!enable) return;
         log('제출 버튼 클릭 - 채점 결과 감지 시작');
-        // 코드 실행 커밋이 진행 중이더라도 제출은 별도로 처리하기 위해 상태 초기화
-        uploadState.uploading = false;
+        const baseline = getSolvedResultInfo();
+        submitBaselineSignature = baseline ? baseline.signature : '';
+        submitStartedAt = Date.now();
+        sawResultClearAfterSubmit = !baseline;
+        SubmissionState.transition(SubmissionState.STATE.SUBMITTED);
         startLoader();
       });
       log('제출 버튼 리스너 등록 완료');
@@ -113,7 +148,7 @@ function attachRunCodeListener() {
           const bojData = await parseData();
           if (isNull(bojData)) return;
           // 코드 실행은 정답/오답 구분 없이 '실행' 타입으로 커밋
-          await beginUpload(bojData, null);
+          await enqueueOrUpload(bojData, CTL_RESULT.RUN, `run:${Date.now()}`);
         } catch (error) {
           log('코드 실행 커밋 오류:', error);
         }
@@ -128,37 +163,102 @@ function attachRunCodeListener() {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
-function getSolvedResult() {
-  const result = document.querySelector('div.modal-header > h4')
-    || document.querySelector('#modal-dialog h4')
-    || document.querySelector('.modal-header h4')
-    || document.querySelector('[class*="modal"] h4');
-  if (result) return result.innerText;
-  return '';
+function isVisibleElement(el) {
+  if (!el) return false;
+  const style = window.getComputedStyle(el);
+  return style.display !== 'none'
+    && style.visibility !== 'hidden'
+    && style.opacity !== '0'
+    && el.getClientRects().length > 0;
+}
+
+function getSolvedResultInfo() {
+  const candidates = [
+    ...document.querySelectorAll('div.modal-header > h4, #modal-dialog h4, .modal-header h4, [class*="modal"] h4'),
+    ...document.querySelectorAll('#output .console-message, td.result, .testcase-result'),
+  ];
+
+  const texts = candidates
+    .filter(isVisibleElement)
+    .map((node) => node.innerText || node.textContent || '')
+    .map((text) => text.replace(/\s+/g, ' ').trim())
+    .filter((text) => normalizeProgrammersResult(text));
+
+  if (texts.length === 0) return null;
+
+  const rawResult = texts.join(' | ');
+  const codeLength = (document.querySelector('textarea#code') || {}).value?.length || 0;
+  return {
+    rawResult,
+    signature: `${rawResult}:${codeLength}`,
+  };
+}
+
+async function handleProgrammersResult(rawResult, signature) {
+  const result = normalizeProgrammersResult(rawResult);
+  if (!result) return;
+
+  SubmissionState.transition(SubmissionState.STATE.RESULT_READY);
+  const bojData = await parseData();
+  if (isNull(bojData)) return;
+
+  await enqueueOrUpload(bojData, result, signature);
+}
+
+async function enqueueOrUpload(bojData, result, signature) {
+  if (!SubmissionState.canCommit(signature)) {
+    SubmissionState.enqueue({ bojData, result, signature });
+    schedulePendingQueue();
+    return;
+  }
+
+  await beginUpload(bojData, result, signature);
+}
+
+function schedulePendingQueue() {
+  clearTimeout(pendingProcessTimer);
+  pendingProcessTimer = setTimeout(processPendingQueue, 3100);
+}
+
+async function processPendingQueue() {
+  if (!SubmissionState.hasPending() || SubmissionState.get() === SubmissionState.STATE.COMMITTING) return;
+  const next = SubmissionState.dequeue();
+  if (!next) return;
+  await enqueueOrUpload(next.bojData, next.result, next.signature);
 }
 
 /* 파싱 직후 실행되는 함수
- * isPassed: true = 정답, false = 오답(틀렸습니다), null = 코드 실행
+ * result: CTL_RESULT 문자열
  */
-async function beginUpload(bojData, isPassed = true) {
+async function beginUpload(bojData, result = CTL_RESULT.CORRECT, signature = '') {
   if (uploadState.uploading) return;
   uploadState.uploading = true;
-  log('bojData', bojData, 'isPassed', isPassed);
+  SubmissionState.markCommitStart(signature);
+  log('bojData', bojData, 'result', result);
 
   startUpload();
 
-  const stats = await getStats();
-  const hook = await getHook();
-  const token = await getToken();
-
-  const currentVersion = stats.version;
-  if (isNull(currentVersion) || currentVersion !== getVersion() || isNull(await getStatsSHAfromPath(hook))) {
-    await versionUpdate();
-  }
-
   /* 항상 새로 커밋 */
-  await uploadOneSolveProblemOnGit(bojData, isPassed, markUploadedCSS);
-  uploadState.uploading = false;
+  try {
+    const hook = await getHook();
+    if (isNull(hook)) throw new Error('GitHub repository hook is missing.');
+
+    const stats = await getStats();
+    const currentVersion = stats.version;
+    if (isNull(currentVersion) || currentVersion !== getVersion() || isNull(await getStatsSHAfromPath(hook))) {
+      await versionUpdate();
+    }
+
+    await uploadOneSolveProblemOnGit(bojData, result, markUploadedCSS);
+    console.log(`[CTL] 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
+  } catch (error) {
+    markUploadFailedCSS();
+    console.error('[CTL] 커밋 실패:', error);
+  } finally {
+    uploadState.uploading = false;
+    SubmissionState.markCommitEnd();
+    schedulePendingQueue();
+  }
 }
 
 async function versionUpdate() {

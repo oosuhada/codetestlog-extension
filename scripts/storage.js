@@ -1,53 +1,105 @@
 // ─── CodeTestLog Storage Key Namespace ───────────────────────────────────────
 // P01 이후 모든 스토리지 키는 이 객체를 통해 사용한다.
-// 기존 BaekjoonHub 키는 P01에서 마이그레이션 예정.
-const CTL_STORAGE_KEYS = {
+var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   attemptCount: (site, problemId) => `ctl_attempt_${site}_${problemId}`,
+  dirTemplate:  (platform) => `ctl_dir_template_${platform}`,
   githubToken:  'ctl_github_token',
   githubRepo:   'ctl_github_repo',
-  notionToken:  'ctl_notion_token',   // P05에서 사용
-  notionDbId:   'ctl_notion_db_id',   // P05에서 사용
-  aiProvider:   'ctl_ai_provider',    // P07에서 사용
-  aiApiKey:     'ctl_ai_api_key',     // P07에서 사용
+  githubRepoUrl: 'ctl_github_repo_url',
+  githubUsername: 'ctl_github_username',
+  notionToken:  'ctl_notion_token',
+  notionDbId:   'ctl_notion_db_id',
+  aiProvider:   'ctl_ai_provider',
+  aiApiKey:     'ctl_ai_api_key',
   isEnabled:    'ctl_is_enabled',
+  oauthPipe:    'ctl_oauth_pipe',
+  modeType:     'ctl_mode_type',
+  stats:        'ctl_stats',
+  orgOption:    'ctl_org_option',
+  userPrefix:   'ctl_user_prefix',
+  saveExamples: 'ctl_save_examples',
+  theme:        'ctl_theme',
+  language:     'ctl_language',
 };
+globalThis.CTL_STORAGE_KEYS = CTL_STORAGE_KEYS;
+var CTL_LEGACY_KEY_MAP = globalThis.CTL_LEGACY_KEY_MAP || {
+  BaekjoonHub_token: CTL_STORAGE_KEYS.githubToken,
+  BaekjoonHub_username: CTL_STORAGE_KEYS.githubUsername,
+  BaekjoonHub_hook: CTL_STORAGE_KEYS.githubRepo,
+  repo: CTL_STORAGE_KEYS.githubRepoUrl,
+  BaekjoonHub_OrgOption: CTL_STORAGE_KEYS.orgOption,
+  BaekjoonHub_disOption: CTL_STORAGE_KEYS.orgOption,
+  BaekjoonHub_userPrefix: CTL_STORAGE_KEYS.userPrefix,
+  bjhEnable: CTL_STORAGE_KEYS.isEnabled,
+  bjhSaveExamples: CTL_STORAGE_KEYS.saveExamples,
+  bjh_theme: CTL_STORAGE_KEYS.theme,
+  bjh_lang: CTL_STORAGE_KEYS.language,
+  mode_type: CTL_STORAGE_KEYS.modeType,
+  stats: CTL_STORAGE_KEYS.stats,
+  pipe_baekjoonhub: CTL_STORAGE_KEYS.oauthPipe,
+  pipe_BaekjoonHub: CTL_STORAGE_KEYS.oauthPipe,
+};
+globalThis.CTL_LEGACY_KEY_MAP = CTL_LEGACY_KEY_MAP;
 // ─────────────────────────────────────────────────────────────────────────────
 
 /* Sync to local storage */
-// TODO(P01): migrate legacy BaekjoonHub_*, pipe_baekjoonhub, bjh*, stats,
-// and mode_type keys below to CTL_STORAGE_KEYS.
-chrome.storage.local.get('isSync', (data) => {
-  keys = ['BaekjoonHub_token', 'BaekjoonHub_username', 'pipe_baekjoonhub', 'stats', 'BaekjoonHub_hook', 'mode_type'];
-  if (!data || !data.isSync) {
-    keys.forEach((key) => {
-      chrome.storage.sync.get(key, (data) => {
-        chrome.storage.local.set({ [key]: data[key] });
+const ctlStorageReady = syncLegacyStorageToLocal()
+  .then(() => migrateLegacyStorageKeys())
+  .then(() => initializeCtlStorageDefaults());
+
+async function syncLegacyStorageToLocal() {
+  const legacyKeys = Object.keys(CTL_LEGACY_KEY_MAP || {});
+  return new Promise((resolve) => {
+    chrome.storage.local.get('isSync', (data) => {
+      if (data && data.isSync) {
+        console.log('CodeTestLog Local storage already synced!');
+        resolve();
+        return;
+      }
+
+      chrome.storage.sync.get(legacyKeys, (syncData) => {
+        const values = {};
+        legacyKeys.forEach((key) => {
+          if (syncData[key] !== undefined) {
+            values[key] = syncData[key];
+          }
+        });
+
+        chrome.storage.local.set({ ...values, isSync: true }, () => {
+          console.log('CodeTestLog Synced to local values');
+          resolve();
+        });
       });
     });
-    chrome.storage.local.set({ isSync: true }, (data) => {
-      // if (debug)
-      console.log('CodeTestLog Synced to local values');
-    });
-  } else {
-    // if (debug)
-    // console.log('Upload Completed. Local Storage status:', data);
-    // if (debug)
-    console.log('CodeTestLog Local storage already synced!');
+  });
+}
+
+async function initializeCtlStorageDefaults() {
+  const stats = (await getObjectFromLocalStorage(CTL_STORAGE_KEYS.stats)) || {};
+  if (isNull(stats.version)) stats.version = '0.0.0';
+  if (isNull(stats.branches) || stats.version !== getVersion()) stats.branches = {};
+  if (isNull(stats.submission)) stats.submission = {};
+  if (isNull(stats.problems) || stats.version !== getVersion()) stats.problems = {};
+  await saveObjectInLocalStorage({ [CTL_STORAGE_KEYS.stats]: stats });
+
+  const enable = await getObjectFromLocalStorage(CTL_STORAGE_KEYS.isEnabled);
+  if (enable === undefined) {
+    await saveObjectInLocalStorage({ [CTL_STORAGE_KEYS.isEnabled]: true });
   }
-});
+}
+
+async function ensureCtlStorageReady() {
+  try {
+    await ctlStorageReady;
+  } catch (error) {
+    console.error('[CTL] 스토리지 초기화 실패:', error);
+  }
+}
 
 /* stats 초기값이 없는 경우, 기본값을 생성하고 stats를 업데이트한다.
    만약 새로운 버전이 업데이트되었을 경우, 기존 submission은 업데이트를 위해 초기화 한다.
    (확인하기 어려운 다양한 케이스가 발생하는 것을 확인하여서 if 조건문을 복잡하게 하였다.)
 */
-getStats().then((stats) => {
-  if (isNull(stats)) stats = {};
-  if (isNull(stats.version)) stats.version = '0.0.0';
-  if (isNull(stats.branches) || stats.version !== getVersion()) stats.branches = {};
-  if (isNull(stats.submission)) stats.submission = {};
-  if (isNull(stats.problems) || stats.version !== getVersion()) stats.problems = {};
-  saveStats(stats);
-});
 
 /**
  * @author https://gist.github.com/sumitpore/47439fcd86696a71bf083ede8bbd5466
@@ -150,58 +202,66 @@ async function removeObjectFromSyncStorage(keys) {
 }
 
 async function getToken() {
-  return await getObjectFromLocalStorage('BaekjoonHub_token');
+  await ensureCtlStorageReady();
+  return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.githubToken);
 }
 
 // async function getPipe() {
-//   return await getObjectFromLocalStorage('pipe_baekjoonhub');
+//   return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.oauthPipe);
 // }
 
 async function getGithubUsername() {
-  return await getObjectFromLocalStorage('BaekjoonHub_username');
+  await ensureCtlStorageReady();
+  return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.githubUsername);
 }
 
 async function getStats() {
-  return await getObjectFromLocalStorage('stats');
+  await ensureCtlStorageReady();
+  return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.stats);
 }
 
 async function getHook() {
-  return await getObjectFromLocalStorage('BaekjoonHub_hook');
+  await ensureCtlStorageReady();
+  return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.githubRepo);
 }
 
 /** welcome.html 의 분기 처리 dis_option에서 설정된 boolean 값을 반환합니다. */
 async function getOrgOption() {
   try {
-    return await getObjectFromLocalStorage('BaekjoonHub_OrgOption');
+    await ensureCtlStorageReady();
+    return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.orgOption);
   } catch (ex) {
     console.log('The way it works has changed with updates. Update your storage. ');
-    chrome.storage.local.set({ BaekjoonHub_OrgOption: "platform" }, () => {});
+    chrome.storage.local.set({ [CTL_STORAGE_KEYS.orgOption]: "platform" }, () => {});
     return "platform";
   }
 }
 
 async function getModeType() {
-  return await getObjectFromLocalStorage('mode_type');
+  await ensureCtlStorageReady();
+  return await getObjectFromLocalStorage(CTL_STORAGE_KEYS.modeType);
 }
 
 async function getUserPrefix() {
-  return (await getObjectFromLocalStorage('BaekjoonHub_userPrefix')) || '';
+  await ensureCtlStorageReady();
+  return (await getObjectFromLocalStorage(CTL_STORAGE_KEYS.userPrefix)) || '';
 }
 
 async function saveUserPrefix(prefix) {
-  return await saveObjectInLocalStorage({ BaekjoonHub_userPrefix: prefix });
+  return await saveObjectInLocalStorage({ [CTL_STORAGE_KEYS.userPrefix]: prefix });
 }
 
 async function getSaveExamplesOption() {
-  return (await getObjectFromLocalStorage('bjhSaveExamples')) === true;
+  await ensureCtlStorageReady();
+  return (await getObjectFromLocalStorage(CTL_STORAGE_KEYS.saveExamples)) === true;
 }
 
 async function saveToken(token) {
-  return await saveObjectInLocalStorage({ BaekjoonHub_token: token });
+  return await saveObjectInLocalStorage({ [CTL_STORAGE_KEYS.githubToken]: token });
 }
 
 async function saveStats(stats) {
-  return await saveObjectInLocalStorage({ stats });
+  return await saveObjectInLocalStorage({ [CTL_STORAGE_KEYS.stats]: stats });
 }
 
 /**
@@ -299,7 +359,7 @@ async function updateLocalStorageStats() {
  * 스토리지에 저장된 {@link getOrgOption}값에 따라 분기 처리됩니다.
  *
  * @param {string} dirName - 기존에 사용되던 분류 방식의 디렉토리 이름입니다.
- * @param {string} language - 'BaekjoonHub_disOption'이 True일 경우에 분리에 사용될 언어 입니다.
+ * @param {string} language - ctl_org_option이 language일 경우에 분리에 사용될 언어 입니다.
  * */
 async function getDirNameByOrgOption(dirName, language) {
   if (await getOrgOption() === "language") dirName = `${language}/${dirName}`;
@@ -315,12 +375,13 @@ function applyDirectoryTemplate(template, variables) {
 
 // 플랫폼별 템플릿 저장/조회
 async function getDirectoryTemplate(platform) {
-  const key = `BaekjoonHub_dirTemplate_${platform}`;
+  await ensureCtlStorageReady();
+  const key = CTL_STORAGE_KEYS.dirTemplate(platform);
   return await getObjectFromLocalStorage(key);
 }
 
 async function saveDirectoryTemplate(platform, template) {
-  const key = `BaekjoonHub_dirTemplate_${platform}`;
+  const key = CTL_STORAGE_KEYS.dirTemplate(platform);
   return await saveObjectInLocalStorage({ [key]: template });
 }
 
