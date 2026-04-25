@@ -22,6 +22,8 @@ function extractUploadedProblemIds(stats, hook) {
       const match = key.match(/^(\d+)/);
       if (match) {
         uploadedIds.add(match[1]);
+      } else if (!isNull(node[key]) && typeof node[key] === 'object') {
+        extractFromNode(node[key]);
       }
     }
   }
