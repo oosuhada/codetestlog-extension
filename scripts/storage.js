@@ -1,5 +1,5 @@
-// ─── CodeTestLog Storage Key Namespace ───────────────────────────────────────
-// P01 이후 모든 스토리지 키는 이 객체를 통해 사용한다.
+// ─── Algolog Storage Key Namespace ───────────────────────────────────────
+// 설치된 사용자의 데이터 호환을 위해 ctl_ 네임스페이스는 유지한다.
 var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   attemptCount: (site, problemId) => `ctl_attempt_${site}_${problemId}`,
   dirTemplate:  (platform) => `ctl_dir_template_${platform}`,
@@ -22,23 +22,7 @@ var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   language:     'ctl_language',
 };
 globalThis.CTL_STORAGE_KEYS = CTL_STORAGE_KEYS;
-var CTL_LEGACY_KEY_MAP = globalThis.CTL_LEGACY_KEY_MAP || {
-  BaekjoonHub_token: CTL_STORAGE_KEYS.githubToken,
-  BaekjoonHub_username: CTL_STORAGE_KEYS.githubUsername,
-  BaekjoonHub_hook: CTL_STORAGE_KEYS.githubRepo,
-  repo: CTL_STORAGE_KEYS.githubRepoUrl,
-  BaekjoonHub_OrgOption: CTL_STORAGE_KEYS.orgOption,
-  BaekjoonHub_disOption: CTL_STORAGE_KEYS.orgOption,
-  BaekjoonHub_userPrefix: CTL_STORAGE_KEYS.userPrefix,
-  bjhEnable: CTL_STORAGE_KEYS.isEnabled,
-  bjhSaveExamples: CTL_STORAGE_KEYS.saveExamples,
-  bjh_theme: CTL_STORAGE_KEYS.theme,
-  bjh_lang: CTL_STORAGE_KEYS.language,
-  mode_type: CTL_STORAGE_KEYS.modeType,
-  stats: CTL_STORAGE_KEYS.stats,
-  pipe_baekjoonhub: CTL_STORAGE_KEYS.oauthPipe,
-  pipe_BaekjoonHub: CTL_STORAGE_KEYS.oauthPipe,
-};
+var CTL_LEGACY_KEY_MAP = globalThis.CTL_LEGACY_KEY_MAP || {};
 globalThis.CTL_LEGACY_KEY_MAP = CTL_LEGACY_KEY_MAP;
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -52,8 +36,13 @@ async function syncLegacyStorageToLocal() {
   return new Promise((resolve) => {
     chrome.storage.local.get('isSync', (data) => {
       if (data && data.isSync) {
-        console.log('CodeTestLog Local storage already synced!');
+        console.log('Algolog local storage already synced.');
         resolve();
+        return;
+      }
+
+      if (legacyKeys.length === 0) {
+        chrome.storage.local.set({ isSync: true }, resolve);
         return;
       }
 
@@ -66,7 +55,7 @@ async function syncLegacyStorageToLocal() {
         });
 
         chrome.storage.local.set({ ...values, isSync: true }, () => {
-          console.log('CodeTestLog Synced to local values');
+          console.log('Algolog synced local values.');
           resolve();
         });
       });
@@ -92,7 +81,7 @@ async function ensureCtlStorageReady() {
   try {
     await ctlStorageReady;
   } catch (error) {
-    console.error('[CTL] 스토리지 초기화 실패:', error);
+    console.error('[ALG] 스토리지 초기화 실패:', error);
   }
 }
 

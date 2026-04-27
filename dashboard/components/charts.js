@@ -1,18 +1,25 @@
 (function () {
   const chartInstances = {};
 
-  const RESULT_COLORS = {
-    correct: '#3fb950',
-    wrong: '#f85149',
-    timeout: '#d29922',
-    runtime_error: '#f97316',
-    compile_error: '#a78bfa',
-    memory_exceeded: '#38bdf8',
-    partial: '#eab308',
-    run: '#8b949e',
-  };
+  const SITE_COLOR_VARS = ['--accent', '--timeout', '--compile', '--wrong', '--memory', '--correct'];
 
-  const SITE_COLORS = ['#4fd1c5', '#f59e0b', '#a78bfa', '#f43f5e', '#60a5fa', '#84cc16'];
+  function cssVar(name, fallback) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+  }
+
+  function resultColor(result) {
+    const map = {
+      correct: '--correct',
+      wrong: '--wrong',
+      timeout: '--timeout',
+      runtime_error: '--runtime',
+      compile_error: '--compile',
+      memory_exceeded: '--memory',
+      partial: '--partial',
+      run: '--muted',
+    };
+    return cssVar(map[result] || '--muted', '#8f8678');
+  }
 
   function destroyChart(key) {
     if (chartInstances[key]) {
@@ -25,7 +32,7 @@
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#8b949e';
+    ctx.fillStyle = cssVar('--muted', '#8f8678');
     ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(message, canvas.width / 2, Math.max(24, canvas.height / 2));
@@ -50,11 +57,11 @@
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: '#e6edf3', boxWidth: 12, padding: 14 },
+          labels: { color: cssVar('--text', '#f2f2ef'), boxWidth: 12, padding: 14 },
         },
         tooltip: {
-          backgroundColor: '#171a21',
-          borderColor: '#30363d',
+          backgroundColor: cssVar('--surface', '#191919'),
+          borderColor: cssVar('--border', '#333333'),
           borderWidth: 1,
         },
       },
@@ -70,14 +77,14 @@
         datasets: [{
           label: '제출',
           data: dailySeries.map((item) => item.count),
-          backgroundColor: '#4fd1c5',
+          backgroundColor: cssVar('--accent', '#d8b26e'),
           borderRadius: 4,
         }],
       },
       options: defaultOptions({
         scales: {
-          x: { ticks: { color: '#8b949e', maxRotation: 0 }, grid: { color: 'rgba(139, 148, 158, 0.12)' } },
-          y: { beginAtZero: true, ticks: { color: '#8b949e', precision: 0 }, grid: { color: 'rgba(139, 148, 158, 0.14)' } },
+          x: { ticks: { color: cssVar('--muted', '#aaa39a'), maxRotation: 0 }, grid: { color: cssVar('--border', '#333333') } },
+          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#aaa39a'), precision: 0 }, grid: { color: cssVar('--border', '#333333') } },
         },
       }),
     });
@@ -91,8 +98,8 @@
         labels,
         datasets: [{
           data: labels.map((key) => byResult[key]),
-          backgroundColor: labels.map((key) => RESULT_COLORS[key] || '#8b949e'),
-          borderColor: '#171a21',
+          backgroundColor: labels.map((key) => resultColor(key)),
+          borderColor: cssVar('--surface', '#191919'),
           borderWidth: 2,
         }],
       },
@@ -109,14 +116,14 @@
         datasets: [{
           label: '제출',
           data: labels.map((key) => bySite[key]),
-          backgroundColor: labels.map((_, index) => SITE_COLORS[index % SITE_COLORS.length]),
+          backgroundColor: labels.map((_, index) => cssVar(SITE_COLOR_VARS[index % SITE_COLOR_VARS.length], '#d8b26e')),
           borderRadius: 4,
         }],
       },
       options: defaultOptions({
         scales: {
-          x: { ticks: { color: '#8b949e' }, grid: { display: false } },
-          y: { beginAtZero: true, ticks: { color: '#8b949e', precision: 0 }, grid: { color: 'rgba(139, 148, 158, 0.14)' } },
+          x: { ticks: { color: cssVar('--muted', '#aaa39a') }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#aaa39a'), precision: 0 }, grid: { color: cssVar('--border', '#333333') } },
         },
       }),
     });

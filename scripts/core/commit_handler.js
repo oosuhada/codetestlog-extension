@@ -1,5 +1,5 @@
 /**
- * Generic CodeTestLog commit handler for site adapters.
+ * Generic Algolog commit handler for site adapters.
  * Mature legacy sites can keep their specialized commit path and still expose
  * adapters; new sites can call `CTLCommitHandler.handleSubmission(submission)`.
  */
@@ -71,7 +71,7 @@ var CTLCommitHandler = globalThis.CTLCommitHandler || (() => {
   }
 
   function buildCommitMessage({ result, site, level, title, lang, attemptCount }) {
-    return `[CTL] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
+    return `[ALG] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
   }
 
   async function incrementAttemptCount(siteKey, problemId) {
@@ -99,7 +99,7 @@ var CTLCommitHandler = globalThis.CTLCommitHandler || (() => {
     try {
       chrome.runtime.sendMessage({ type: 'CTL_COMMIT_EVENT', payload }, () => {
         if (chrome.runtime.lastError) {
-          console.log('[CTL] Side Panel event skipped:', chrome.runtime.lastError.message);
+          console.log('[ALG] Side Panel event skipped:', chrome.runtime.lastError.message);
         }
       });
     } catch (_) {}
@@ -209,7 +209,7 @@ var CTLCommitHandler = globalThis.CTLCommitHandler || (() => {
       return { commitPath, fileName, attemptCount };
     } catch (error) {
       processed.delete(signature);
-      console.error('[CTL] Adapter commit failed:', error);
+      console.error('[ALG] Adapter commit failed:', error);
       return null;
     } finally {
       committing = false;
@@ -239,7 +239,7 @@ var CTLCommitHandler = globalThis.CTLCommitHandler || (() => {
       try {
         await handleSubmission(await adapter.detect());
       } catch (error) {
-        console.error(`[CTL] Adapter polling failed: ${siteKey}`, error);
+        console.error(`[ALG] Adapter polling failed: ${siteKey}`, error);
       }
     }, intervalMs);
   }

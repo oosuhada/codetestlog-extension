@@ -56,7 +56,7 @@
   }
 
   /**
-   * GitHub 레포의 파일 트리를 CTL 규칙으로 파싱합니다.
+   * GitHub 레포의 파일 트리를 Algolog 규칙으로 파싱합니다.
    * @param {string} owner
    * @param {string} repo
    * @returns {Promise<Array>}
@@ -260,7 +260,7 @@
         ...submission,
         githubUrl: buildGithubBlobUrl(repoInfo.owner, repoInfo.repo, submission.path),
       }));
-      localStorage.setItem('ctl_dashboard_repo', `${repoInfo.owner}/${repoInfo.repo}`);
+      localStorage.setItem('algolog_dashboard_repo', `${repoInfo.owner}/${repoInfo.repo}`);
       const url = new URL(window.location.href);
       url.searchParams.set('repo', `${repoInfo.owner}/${repoInfo.repo}`);
       window.history.replaceState(null, '', url.toString());
@@ -286,7 +286,7 @@
 
   function initRepoInput() {
     const params = new URLSearchParams(window.location.search);
-    const repo = params.get('repo') || localStorage.getItem('ctl_dashboard_repo') || '';
+    const repo = params.get('repo') || localStorage.getItem('algolog_dashboard_repo') || '';
     if (repo && $('repo-input')) {
       $('repo-input').value = repo;
       if (parseRepoInput(repo)) loadDashboard();
@@ -296,11 +296,14 @@
   function init() {
     bindEvents();
     initRepoInput();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (state.submissions.length > 0) renderDashboard(state.submissions);
+    });
   }
 
   document.addEventListener('DOMContentLoaded', init);
 
-  window.CTLDashboard = {
+  window.AlgologDashboard = {
     calcStats,
     extToLang,
     fetchSubmissions,

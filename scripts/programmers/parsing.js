@@ -1,19 +1,4 @@
 /*
- * [CTL Analysis - P01]
- * 제출 감지 방식: programmers.js가 제출 버튼 클릭 후 결과 모달을 폴링하고, 결과가 준비되면 parseData()를 호출한다.
- * 결과 판별 위치: programmers.js의 getSolvedResultInfo()와 normalizeProgrammersResult().
- * 정답/오답 분기: uploadfunctions.js의 uploadOneSolveProblemOnGit()이 CTL_RESULT 기반으로 커밋 경로/파일명/메시지를 생성한다.
- *
- * 발견한 버그:
- *   - BUG-1: data-challenge-level 원시값을 그대로 써서 `0` 같은 숫자 단독 레벨 폴더가 생길 수 있다.
- *   - BUG-2: 파일명/경로 생성 책임이 parsing.js와 uploadfunctions.js에 흩어져 결과별 파일 생성 규칙이 중복된다.
- *
- * 기존 스토리지 키 목록: (마이그레이션 대상)
- *   - 'BaekjoonHub_dirTemplate_${platform}' → ctl_dir_template_${platform}
- *   - 'BaekjoonHub_userPrefix' → ctl_user_prefix
- */
-
-/*
   문제가 맞았다면 문제 관련 데이터를 파싱하는 함수의 모음입니다.
   모든 해당 파일의 모든 함수는 parseData()를 통해 호출됩니다.
 */
@@ -223,7 +208,7 @@ async function makeData(origin) {
   const { problem_description, problemId, level, result_message, division, language_extension, title, runtime, memory, code, language, hasNotes, notesMarkdown, link } = origin;
   const directory = buildCommitPath('프로그래머스', level, problemId, title);
   const levelWithLv = `${level}`.includes('lv') ? level : `lv${level}`.replace('lv', 'level ');
-  const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -CodeTestLog`;
+  const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -Algolog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   const readme =
@@ -411,7 +396,7 @@ async function makeDataForBulkUpload(origin) {
     _defaultDir: `프로그래머스/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
   const levelWithLv = `${level}`.includes('lv') ? level : `lv${level}`.replace('lv', 'level ');
-  const message = `[${levelWithLv}] Title: ${title} -CodeTestLog`;
+  const message = `[${levelWithLv}] Title: ${title} -Algolog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   const readme =

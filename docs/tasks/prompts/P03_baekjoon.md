@@ -96,7 +96,7 @@ async function parseBojTier(problemId) {
       return SOLVED_AC_TIER[data.level] || 'unrated';
     }
   } catch (_) {
-    console.warn('[CTL] solved.ac API 실패, DOM fallback 시도');
+    console.warn('[ALG] solved.ac API 실패, DOM fallback 시도');
   }
 
   // 2차: DOM에서 solved.ac 배지 파싱
@@ -150,9 +150,9 @@ async function handleBojResult(rawResult, code, problemId, title) {
         fileName, commitPath, success: true,
       },
     });
-    console.log(`[CTL] 백준 커밋 완료: ${commitPath}/${fileName}`);
+    console.log(`[ALG] 백준 커밋 완료: ${commitPath}/${fileName}`);
   } catch (err) {
-    console.error('[CTL] 백준 커밋 실패:', err);
+    console.error('[ALG] 백준 커밋 실패:', err);
   } finally {
     SubmissionState.markCommitEnd();
   }

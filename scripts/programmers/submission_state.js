@@ -31,7 +31,7 @@ const SubmissionState = (() => {
       return current;
     },
     transition(next) {
-      console.log(`[CTL] State: ${current} -> ${next}`);
+      console.log(`[ALG] State: ${current} -> ${next}`);
       current = next;
     },
     canCommit(signature) {
@@ -43,7 +43,7 @@ const SubmissionState = (() => {
     enqueue(item) {
       if (!item) return;
       pendingQueue.push(item);
-      console.log(`[CTL] 제출 결과 큐 추가: ${pendingQueue.length}개 대기`);
+      console.log(`[ALG] 제출 결과 큐 추가: ${pendingQueue.length}개 대기`);
     },
     dequeue() {
       return pendingQueue.shift();

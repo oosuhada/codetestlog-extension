@@ -12,10 +12,10 @@
 - 프로그래머스 제출 감지가 `정답`/`틀렸습니다` 텍스트에만 묶여 있어 시간초과/런타임 에러/컴파일 에러를 놓칠 수 있었음.
 - 제출 버튼 클릭 시 `uploadState.uploading = false`로 진행 중인 업로드 상태를 강제로 해제해 연속 제출 race condition이 발생할 수 있었음.
 - `data-challenge-level` 원시값을 경로에 사용해 `프로그래머스/0/...` 같은 숫자 단독 레벨 폴더가 생길 수 있었음.
-- `BaekjoonHub_*`, `bjh*`, `stats`, `mode_type` 키가 여러 컨텍스트에 하드코딩되어 신규 `ctl_` 네임스페이스와 충돌 가능성이 있었음.
+- 오래된 저장소 키가 여러 컨텍스트에 하드코딩되어 신규 `ctl_` 네임스페이스와 충돌 가능성이 있었음.
 
 ## 다음 Phase를 위한 메모
-- P02 Side Panel에서는 `console.log('[CTL] 커밋 완료...')` 지점과 `enqueueOrUpload()` 결과를 메시지 브릿지로 연결하면 됨.
+- P02 Side Panel에서는 `console.log('[ALG] 커밋 완료...')` 지점과 `enqueueOrUpload()` 결과를 메시지 브릿지로 연결하면 됨.
 - 실제 프로그래머스/GitHub E2E는 로그인 세션과 테스트 저장소가 필요함. 이번 Phase에서는 JS 구문 검사, manifest 검사, 스토리지 마이그레이션 모의 테스트, 경로/메시지/시도 횟수 순수 함수 테스트로 검증함.
 - `CTL_RESULT.RUN`은 기존 코드 실행 버튼 커밋 호환을 위해 유지했으며, 정답 README 갱신은 `correct` 결과에만 수행함.
 

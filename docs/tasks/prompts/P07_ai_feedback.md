@@ -133,7 +133,7 @@ async function analyzeCode(params) {
       default:          return null;
     }
   } catch (err) {
-    console.error('[CTL] AI 분석 실패:', err);
+    console.error('[ALG] AI 분석 실패:', err);
     return null;
   }
 }

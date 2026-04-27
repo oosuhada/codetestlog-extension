@@ -61,14 +61,14 @@ sidepanel/
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeTestLog</title>
+  <title>Algolog</title>
   <link rel="stylesheet" href="panel.css">
 </head>
 <body>
   <!-- 헤더 -->
   <header class="ctl-header">
-    <span class="ctl-logo">CTL</span>
-    <span class="ctl-title">CodeTestLog</span>
+    <span class="ctl-logo">ALG</span>
+    <span class="ctl-title">Algolog</span>
     <span id="status-dot" class="status-dot status-idle" title="대기 중"></span>
   </header>
 

@@ -49,7 +49,7 @@ html.dark body {
   text-align: center;
 }
 
-.text-brand { color: #0078c3; }
+.text-brand { color: #8f6a2f; }
 
 .subtitle {
   font-size: 1.125rem;
@@ -133,7 +133,7 @@ html.dark .msg-success {
 html.dark .unlink-area { color: #9ca3af; }
 
 .link-brand {
-  color: #0078c3;
+  color: #8f6a2f;
   cursor: pointer;
   font-weight: 500;
   text-decoration: none;
@@ -182,8 +182,8 @@ html.dark .card {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .form-input:focus {
-  border-color: #0078c3;
-  box-shadow: 0 0 0 3px rgba(0, 120, 195, 0.15);
+  border-color: #8f6a2f;
+  box-shadow: 0 0 0 3px rgba(143, 106, 47, 0.16);
 }
 
 html.dark .form-input {
@@ -192,8 +192,8 @@ html.dark .form-input {
   color: #f9fafb;
 }
 html.dark .form-input:focus {
-  border-color: #0078c3;
-  box-shadow: 0 0 0 3px rgba(0, 120, 195, 0.25);
+  border-color: #8f6a2f;
+  box-shadow: 0 0 0 3px rgba(216, 178, 110, 0.22);
 }
 
 /* === Buttons === */
@@ -202,13 +202,13 @@ html.dark .form-input:focus {
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  background: #0078c3;
+  background: #8f6a2f;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
-.btn-primary:hover { background: #005f9e; }
+.btn-primary:hover { background: #6f5124; }
 .btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -265,10 +265,10 @@ html.dark .muted-text { color: #9ca3af; }
   text-decoration: none;
   transition: color 0.2s;
 }
-.link-muted:hover { color: #0078c3; }
+.link-muted:hover { color: #8f6a2f; }
 
 html.dark .link-muted { color: #6b7280; }
-html.dark .link-muted:hover { color: #0078c3; }
+html.dark .link-muted:hover { color: #8f6a2f; }
 
 .star-logo-name { color: #374151; }
 html.dark .star-logo-name { color: #f9fafb; }
@@ -296,9 +296,9 @@ html.dark .star-logo-name { color: #f9fafb; }
   transition: color 0.2s;
 }
 .tmpl-summary::-webkit-details-marker { display: none; }
-.tmpl-summary:hover { color: #0078c3; }
+.tmpl-summary:hover { color: #8f6a2f; }
 html.dark .tmpl-summary { color: #9ca3af; }
-html.dark .tmpl-summary:hover { color: #0078c3; }
+html.dark .tmpl-summary:hover { color: #8f6a2f; }
 
 .tmpl-chevron {
   display: inline-block;
@@ -343,12 +343,12 @@ html.dark .tmpl-summary:hover { color: #0078c3; }
   font-size: 12px;
   font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   border-radius: 4px;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: #f0e3d1;
+  color: #8f6a2f;
 }
 html.dark .var-badge {
-  background: rgba(14, 116, 144, 0.2);
-  color: #67e8f9;
+  background: rgba(216, 178, 110, 0.2);
+  color: #d8b26e;
 }
 
 /* Platform groups */

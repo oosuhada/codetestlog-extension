@@ -120,11 +120,11 @@ function sendCtlRuntimeMessage(message) {
   try {
     chrome.runtime.sendMessage(message, () => {
       if (chrome.runtime.lastError) {
-        log('[CTL][BOJ] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
+        log('[ALG][BOJ] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
       }
     });
   } catch (error) {
-    log('[CTL][BOJ] Side Panel 메시지 전달 실패:', error);
+    log('[ALG][BOJ] Side Panel 메시지 전달 실패:', error);
   }
 }
 
@@ -210,12 +210,12 @@ async function beginUpload(bojData, signature = '') {
     await uploadOneSolveProblemOnGit(bojData, markUploadedCSS);
     await markProcessedBojSubmission(bojData.submissionId);
     notifySidePanelCommitEvent({ phase: 'complete', bojData, eventId, success: true });
-    console.log(`[CTL] 백준 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
+    console.log(`[ALG] 백준 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
   } catch (error) {
     markUploadFailedCSS();
     BojSubmissionState.unmarkDetected(signature);
     notifySidePanelCommitEvent({ phase: 'complete', bojData, eventId, success: false, error });
-    console.error('[CTL] 백준 커밋 실패:', error);
+    console.error('[ALG] 백준 커밋 실패:', error);
   } finally {
     uploadState.uploading = false;
     BojSubmissionState.markCommitEnd();
@@ -232,13 +232,13 @@ async function processManualUploadQueue() {
   isManualUploading = true;
   while (manualUploadQueue.length > 0) {
     const { data, button } = manualUploadQueue.shift();
-    button.classList.remove('bjh-upload-icon');
-    button.classList.add('BaekjoonHub_progress');
+    button.classList.remove('algolog-upload-icon');
+    button.classList.add('algolog-progress');
     button.title = '업로드 중...';
     try {
       if (await isProcessedBojSubmission(data.submissionId)) {
-        button.classList.remove('BaekjoonHub_progress');
-        button.classList.add('bjh-upload-success');
+        button.classList.remove('algolog-progress');
+        button.classList.add('algolog-upload-success');
         button.title = '이미 업로드됨';
         continue;
       }
@@ -246,18 +246,18 @@ async function processManualUploadQueue() {
       if (isNotEmpty(bojData)) {
         await uploadOneSolveProblemOnGit(bojData, markUploadedCSS);
         await markProcessedBojSubmission(bojData.submissionId);
-        button.classList.remove('BaekjoonHub_progress');
-        button.classList.add('bjh-upload-success');
+        button.classList.remove('algolog-progress');
+        button.classList.add('algolog-upload-success');
         button.title = '업로드 완료';
       } else {
-        button.classList.remove('BaekjoonHub_progress');
-        button.classList.add('bjh-upload-fail');
+        button.classList.remove('algolog-progress');
+        button.classList.add('algolog-upload-fail');
         button.title = '데이터 파싱 실패';
       }
     } catch (e) {
       console.error('Manual upload failed:', e);
-      button.classList.remove('BaekjoonHub_progress');
-      button.classList.add('bjh-upload-fail');
+      button.classList.remove('algolog-progress');
+      button.classList.add('algolog-upload-fail');
       button.title = '업로드 실패: ' + e.message;
     }
   }
@@ -275,14 +275,14 @@ function injectManualUploadButtons(currentUsername) {
     if (!rowEl) continue;
     const resultCell = rowEl.querySelector('[data-color]')?.closest('td');
     if (!resultCell) continue;
-    if (resultCell.querySelector('.bjh-manual-upload-btn')) continue;
+    if (resultCell.querySelector('.algolog-manual-upload-btn')) continue;
     const btn = document.createElement('button');
-    btn.className = 'bjh-manual-upload-btn bjh-upload-icon';
+    btn.className = 'algolog-manual-upload-btn algolog-upload-icon';
     btn.title = 'GitHub에 업로드';
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (btn.classList.contains('BaekjoonHub_progress') || btn.classList.contains('bjh-upload-success')) return;
+      if (btn.classList.contains('algolog-progress') || btn.classList.contains('algolog-upload-success')) return;
       manualUploadQueue.push({ data: row, button: btn });
       processManualUploadQueue();
     });
@@ -298,7 +298,7 @@ async function injectSaveExamplesButton() {
   const anchor = document.getElementById('sampleinput1') || document.querySelector('#sample-input-1')?.parentElement;
   if (!anchor) return;
   const btn = document.createElement('button');
-  btn.className = 'bjh-save-examples-btn';
+  btn.className = 'algolog-save-examples-btn';
   btn.textContent = '예제 업로드';
   btn.addEventListener('click', async () => {
     if (btn.disabled) return;

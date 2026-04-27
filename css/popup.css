@@ -63,14 +63,14 @@ body {
 }
 
 #onffbox:checked + #onffmain {
-  border: 0px solid #8faadc;
-  background: #8faadc;
+  border: 0px solid #d8b26e;
+  background: #d8b26e;
 }
 
 #onffbox:checked + #onffmain #onffball {
   left: 30px;
-  border: 0px solid #2f5496;
-  background: #2f5496;
+  border: 0px solid #8f6a2f;
+  background: #8f6a2f;
 }
 
 .settings-section {
@@ -95,8 +95,8 @@ body {
   margin-left: 4px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: #e0f2fe;
-  color: #075985;
+  background: #f0e3d1;
+  color: #8f6a2f;
   font-size: 11px;
   font-weight: 700;
   vertical-align: middle;
@@ -130,7 +130,7 @@ body {
 }
 
 .settings-section input:focus {
-  border-color: #2f5496;
+  border-color: #8f6a2f;
   outline: none;
   box-shadow: 0 0 0 2px rgba(47, 84, 150, 0.14);
 }

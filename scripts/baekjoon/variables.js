@@ -332,7 +332,7 @@ const BojSubmissionState = (() => {
       return current;
     },
     transition(next) {
-      console.log(`[CTL][BOJ] State: ${current} -> ${next}`);
+      console.log(`[ALG][BOJ] State: ${current} -> ${next}`);
       current = next;
     },
     hasDetected(signature) {
@@ -350,7 +350,7 @@ const BojSubmissionState = (() => {
     enqueue(item) {
       if (!item) return;
       pendingQueue.push(item);
-      console.log(`[CTL][BOJ] 제출 결과 큐 추가: ${pendingQueue.length}개 대기`);
+      console.log(`[ALG][BOJ] 제출 결과 큐 추가: ${pendingQueue.length}개 대기`);
     },
     dequeue() {
       return pendingQueue.shift();

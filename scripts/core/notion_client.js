@@ -88,7 +88,7 @@ function buildNotionEntryBody(entry) {
 async function createNotionEntry(entry) {
   const { token, dbId } = await getNotionConfig();
   if (!token || !dbId) {
-    console.log('[CTL] Notion is not configured. Skipping optional record.');
+    console.log('[ALG] Notion is not configured. Skipping optional record.');
     return { skipped: true };
   }
 
@@ -106,14 +106,14 @@ async function createNotionEntry(entry) {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       const message = err.message || `Notion API error: ${res.status}`;
-      console.error('[CTL] Notion record failed:', err);
+      console.error('[ALG] Notion record failed:', err);
       return { success: false, error: message };
     }
 
-    console.log('[CTL] Notion record created:', entry.title);
+    console.log('[ALG] Notion record created:', entry.title);
     return { success: true };
   } catch (error) {
-    console.error('[CTL] Notion network error:', error);
+    console.error('[ALG] Notion network error:', error);
     return { success: false, error: error.message };
   }
 }

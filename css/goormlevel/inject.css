@@ -1,16 +1,16 @@
-#BaekjoonHub_progress_anchor_element {
+#algolog-progress-anchor {
     vertical-align: middle;
     margin-right: 20px !important;
   }
   
-  .BaekjoonHub_progress {
+  .algolog-progress {
     display: inline-block;
     pointer-events: none;
     width: 0.8rem;
     height: 0.8rem;
     border: 0.2rem solid transparent;
     border-color: #eee;
-    border-top-color: #3e67ec;
+    border-top-color: #d8b26e;
     border-radius: 50%;
     animation: loadingspin 1s linear infinite;
   }
@@ -20,7 +20,7 @@
     }
   }
   
-  #BaekjoonHub_progress_elem.markuploadfailed {
+  #algolog-progress-elem.markuploadfailed {
     display: inline-block;
     transform: rotate(45deg);
     width: 0.5rem;
@@ -29,7 +29,7 @@
     border-right: 3px solid red;
   }
   
-  #BaekjoonHub_progress_elem.markuploaded {
+  #algolog-progress-elem.markuploaded {
     display: inline-block;
     transform: rotate(45deg);
     width: 0.5rem;
@@ -38,20 +38,20 @@
     border-right: 3px solid #78b13f;
   }
   
-  .BJH_button_wrap {
+  .algolog-button-wrap {
     display: inline-block;
   }
-  .BJH_update {
+  .algolog-update {
     display: inline-block;
     margin-right: 20px;
     padding-top: 0%;
     width: fit-content !important;
-    color: #0078c3 !important;
+    color: #8f6a2f !important;
   
     position: relative !important;
   }
   
-  .BJH_deletion_board {
+  .algolog-deletion-board {
     display: 'block';
     position: fixed;
     z-index: 1;
@@ -66,14 +66,14 @@
   }
   
   /* The Close Button */
-  .BJH_deletion_board_close {
+  .algolog-deletion-board-close {
     color: #aaaaaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
   }
   
-  .BJH_deletion_list {
+  .algolog-deletion-list {
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
@@ -83,20 +83,20 @@
     overflow: scroll;
   }
   
-  .BJH_button:hover,
-  .BJH_button:focus {
+  .algolog-button:hover,
+  .algolog-button:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
   }
   
-  .BJH_loading_wrap {
+  .algolog-loading-wrap {
     display: inline-block;
     margin-left: 4px;
     margin-right: 4px;
   }
   
-  .BJH_loading_number {
+  .algolog-loading-number {
     display: inline-block;
   }
   

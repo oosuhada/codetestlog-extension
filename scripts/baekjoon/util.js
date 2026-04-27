@@ -2,14 +2,14 @@
  * 로딩 버튼 추가
  */
 function startUpload() {
-  let elem = document.getElementById('BaekjoonHub_progress_anchor_element');
+  let elem = document.getElementById('algolog-progress-anchor');
   if (elem !== undefined) {
     elem = document.createElement('span');
-    elem.id = 'BaekjoonHub_progress_anchor_element';
+    elem.id = 'algolog-progress-anchor';
     elem.className = 'runcode-wrapper__8rXm';
     elem.style = 'margin-left: 10px;padding-top: 0px;';
   }
-  elem.innerHTML = `<div id="BaekjoonHub_progress_elem" class="BaekjoonHub_progress"></div>`;
+  elem.innerHTML = `<div id="algolog-progress-elem" class="algolog-progress"></div>`;
   const target = document.getElementById('status-table')?.childNodes[1].childNodes[0].childNodes[3] || document.querySelector('div.table-responsive > table > tbody > tr > td:nth-child(5)');
   target.append(elem);
   if (target.childNodes.length > 0) {
@@ -27,7 +27,7 @@ function startUpload() {
  */
 function markUploadedCSS(branches, directory) {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   if (!elem) return;
   elem.className = 'markuploaded';
   const uploadedUrl = "https://github.com/" +
@@ -44,7 +44,7 @@ function markUploadedCSS(branches, directory) {
  */
 function markUploadFailedCSS() {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   if (!elem) return;
   elem.className = 'markuploadfailed';
 }
@@ -156,13 +156,13 @@ function insertMultiLoader() {
   const navTabs = document.querySelector('ul.nav.nav-tabs');
   if (isNull(navTabs)) return;
   const wrap = document.createElement('li');
-  wrap.className = 'BJH_loading_wrap';
+  wrap.className = 'algolog-loading-wrap';
   const nom = document.createElement('span');
-  nom.className = 'BJH_loading_number';
+  nom.className = 'algolog-loading-number';
   nom.textContent = '0';
   const slash = document.createTextNode(' / ');
   const denom = document.createElement('span');
-  denom.className = 'BJH_loading_number';
+  denom.className = 'algolog-loading-number';
   denom.textContent = '0';
   wrap.appendChild(nom);
   wrap.appendChild(slash);

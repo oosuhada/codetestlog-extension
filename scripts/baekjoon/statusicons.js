@@ -69,8 +69,8 @@ async function injectUploadStatusIcons() {
   const problemPattern = /\/problem\/(\d+)$/;
 
   for (const link of links) {
-    if (link.dataset.bjhChecked) continue;
-    link.dataset.bjhChecked = 'true';
+    if (link.dataset.algologChecked) continue;
+    link.dataset.algologChecked = 'true';
 
     const match = link.getAttribute('href').match(problemPattern);
     if (!match) continue;
@@ -78,7 +78,7 @@ async function injectUploadStatusIcons() {
     const problemId = match[1];
     if (uploadedIds.has(problemId)) {
       const icon = document.createElement('span');
-      icon.className = 'bjh-uploaded-icon';
+      icon.className = 'algolog-uploaded-icon';
       icon.title = 'GitHub에 업로드됨';
       link.insertAdjacentElement('afterend', icon);
     }

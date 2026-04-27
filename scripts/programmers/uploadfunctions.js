@@ -1,20 +1,3 @@
-/*
- * [CTL Analysis - P01]
- * 제출 감지 방식: programmers.js에서 결과가 준비된 뒤 uploadOneSolveProblemOnGit()으로 들어온다.
- * 결과 판별 위치: programmers.js의 normalizeProgrammersResult() 호출 결과를 CTL_RESULT 문자열로 전달받는다.
- * 정답/오답 분기: 기존 isPassed boolean 분기 대신 CTL_RESULT별 파일명/커밋 메시지를 생성한다.
- *
- * 발견한 버그:
- *   - BUG-1: 정답/오답/코드실행별 타임스탬프 파일명 생성 코드가 중복되어 결과 타입 확장이 어렵다.
- *   - BUG-2: 시도 횟수 저장이 없어 1번째/2번째/3번째 시도 추적이 불가능하다.
- *
- * 기존 스토리지 키 목록: (마이그레이션 대상)
- *   - 'BaekjoonHub_token' → ctl_github_token
- *   - 'BaekjoonHub_hook' → ctl_github_repo
- *   - 'stats' → ctl_stats
- *   - 'ctl_attempt_programmers_{id}' 신규 사용
- */
-
 /**
  * 시도 횟수 1 증가 후 반환
  * @returns {Promise<number>} 이번이 몇 번째 시도인지
@@ -40,7 +23,7 @@ async function getAttemptCount(site, problemId) {
 }
 
 /**
- * CodeTestLog 규칙 파일명 생성
+ * Algolog 규칙 파일명 생성
  * 반환 예: "20260501_143022_correct_기능개발.py"
  */
 function buildFileName(result, title, ext) {
@@ -65,10 +48,10 @@ function buildCommitPath(site, level, problemId, title) {
 
 /**
  * 커밋 메시지 생성
- * 반환 예: "[CTL] correct | 프로그래머스 | lv2 | 기능개발 | Python | 3번째 시도"
+ * 반환 예: "[ALG] correct | 프로그래머스 | lv2 | 기능개발 | Python | 3번째 시도"
  */
 function buildCommitMessage({ result, site, level, title, lang, attemptCount }) {
-  return `[CTL] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
+  return `[ALG] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
 }
 
 /** 푼 문제들에 대한 단일 업로드는 uploadGit 함수로 합니다.
@@ -247,7 +230,7 @@ async function uploadAllSolvedProblemProgrammers() {
     // 5. 단일 커밋으로 일괄 업로드
     if (tree_items.length !== 0) {
       const treeData = await git.createTree(refSHA, tree_items);
-      const commitSHA = await git.createCommit('✅ 전체 코드 업로드 -code-test-log', treeData.sha, refSHA);
+      const commitSHA = await git.createCommit('✅ 전체 코드 업로드 -Algolog', treeData.sha, refSHA);
       await git.updateHead(ref, commitSHA);
       MultiloaderSuccess();
       treeData.tree.forEach((item) => {

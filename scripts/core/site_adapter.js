@@ -1,5 +1,5 @@
 /**
- * CodeTestLog site adapter registry.
+ * Algolog site adapter registry.
  *
  * Adding a new judge site:
  * 1. Create `scripts/{siteKey}/adapter.js`.
@@ -29,7 +29,7 @@ var SiteAdapterRegistry = globalThis.SiteAdapterRegistry || (() => {
     register(siteKey, adapter) {
       if (!siteKey || !adapter) return;
       adapters[siteKey] = adapter;
-      console.log(`[CTL] Adapter registered: ${siteKey}`);
+      console.log(`[ALG] Adapter registered: ${siteKey}`);
     },
     get(siteKey) {
       return adapters[siteKey] || null;

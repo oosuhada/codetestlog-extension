@@ -97,7 +97,7 @@ async function makeData(origin) {
     language: lang,
     _defaultDir: `SWEA/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
-  const message = `[${level}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -CodeTestLog`;
+  const message = `[${level}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -Algolog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${extension}`;
   const dateInfo = submissionTime ?? getDateString(new Date(Date.now()));
   // prettier-ignore
@@ -330,7 +330,7 @@ async function makeDataForBulkUploadSWEA(origin) {
     language,
     _defaultDir: `SWEA/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
-  const message = `[${level}] Title: ${title} -CodeTestLog`;
+  const message = `[${level}] Title: ${title} -Algolog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   const readme =

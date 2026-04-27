@@ -1,10 +1,10 @@
 # [P00] Phase 0: 리브랜딩 + 프로젝트 구조 초기화
 
 ## 전제 조건
-BaekjoonHub 포크 완료 상태. 로컬에 클론되어 있음.
+이전 백업 도구 포크 완료 상태. 로컬에 클론되어 있음.
 
 ## 작업 목표
-BaekjoonHub → **CodeTestLog** 브랜드 전환 + docs 구조 초기화 + manifest 정비.
+이전 백업 도구 → **Algolog** 브랜드 전환 + docs 구조 초기화 + manifest 정비.
 **로직 코드는 일절 건드리지 않는다. 이 Phase는 준비 작업.**
 
 ---
@@ -22,9 +22,9 @@ tree -a -L 5 \
 cat manifest.json
 ```
 
-### 1-3. 기존 BaekjoonHub 브랜드명이 등장하는 파일 목록 파악
+### 1-3. 이전 백업 도구 브랜드명이 등장하는 파일 목록 파악
 ```bash
-grep -rl "BaekjoonHub\|백준허브\|Baekjoon Hub" . \
+grep -rl "이전 백업 도구\|이전 백업 도구\|이전 백업 도구" . \
   --include="*.js" --include="*.html" --include="*.json" --include="*.md"
 ```
 
@@ -43,7 +43,7 @@ grep -rn "chrome.storage" . \
 
 ```json
 {
-  "name": "CodeTestLog",
+  "name": "Algolog",
   "short_name": "CTL",
   "description": "코딩테스트 모든 제출 시도를 GitHub에 자동 커밋. 몇 번째 시도에 정답을 맞췄는지 Side Panel에서 바로 확인.",
   "version": "2.0.0"
@@ -62,9 +62,9 @@ grep -rn "chrome.storage" . \
 ### 치환 규칙
 | 원본 | 변경 후 |
 |------|---------|
-| `BaekjoonHub` | `CodeTestLog` |
-| `백준허브` | `CodeTestLog` |
-| `Baekjoon Hub` | `Code Test Log` |
+| `이전 백업 도구` | `Algolog` |
+| `이전 백업 도구` | `Algolog` |
+| `이전 백업 도구` | `Algolog` |
 
 ### 대상 파일 (1-3에서 찾은 파일 목록 기준으로 진행)
 - `popup.html` — `<title>`, `<h1>`, 버튼 레이블 등 표시 텍스트
@@ -98,7 +98,7 @@ docs/
 │   │   └── P07_ai_feedback.md
 │   └── logs/
 │       └── .gitkeep
-└── README.md              ← "CodeTestLog 프로젝트 문서 루트" 설명
+└── README.md              ← "Algolog 프로젝트 문서 루트" 설명
 ```
 
 ---
@@ -109,9 +109,9 @@ docs/
 (파일이 없으면 `scripts/storage.js` 신규 생성)
 
 ```javascript
-// ─── CodeTestLog Storage Key Namespace ───────────────────────────────────────
+// ─── Algolog Storage Key Namespace ───────────────────────────────────────
 // P01 이후 모든 스토리지 키는 이 객체를 통해 사용한다.
-// 기존 BaekjoonHub 키는 P01에서 마이그레이션 예정.
+// 이전 백업 도구 키는 P01에서 마이그레이션 예정.
 const CTL_STORAGE_KEYS = {
   attemptCount: (site, problemId) => `ctl_attempt_${site}_${problemId}`,
   githubToken:  'ctl_github_token',
@@ -130,8 +130,8 @@ const CTL_STORAGE_KEYS = {
 ---
 
 ## 완료 기준
-- [ ] `manifest.json`의 `name`이 `"CodeTestLog"` 인지 확인
-- [ ] `popup.html` 열었을 때 "CodeTestLog" 텍스트 노출 확인
+- [ ] `manifest.json`의 `name`이 `"Algolog"` 인지 확인
+- [ ] `popup.html` 열었을 때 "Algolog" 텍스트 노출 확인
 - [ ] `docs/` 폴더 구조 생성됨 (`tree docs/` 로 확인)
 - [ ] `CTL_STORAGE_KEYS` 블록 추가됨
 - [ ] 로직 코드 손상 없음 (기존 커밋 기능 여전히 동작)

@@ -8,15 +8,15 @@ function startUpload() {
    * goormlevel에는 항상 해당 elem이 없음
    * loader나 check DOM 관리하기 위한 DOM
    */
-  let elem = document.getElementById('BaekjoonHub_progress_anchor_element');
+  let elem = document.getElementById('algolog-progress-anchor');
   if (elem !== undefined) {
     /** goormlevel에서는 항상 해당 조건문을 실행함 */
     elem = document.createElement('span');
-    elem.id = 'BaekjoonHub_progress_anchor_element';
+    elem.id = 'algolog-progress-anchor';
     elem.className = 'runcode-wrapper__8rXm';
     elem.style = 'margin-left: 10px;padding-top: 0px;';
   }
-  elem.innerHTML = `<div id="BaekjoonHub_progress_elem" class="BaekjoonHub_progress"></div>`;
+  elem.innerHTML = `<div id="algolog-progress-elem" class="algolog-progress"></div>`;
 
   /** 정답을 맞추면 렌더링되는 target element */
   const target = [...document.querySelectorAll('#FrameBody div > p[class] > span')].find(($element) => $element.textContent === '정답입니다.');
@@ -36,7 +36,7 @@ function startUpload() {
  */
 function markUploadedCSS(branches, directory) {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   elem.className = 'markuploaded';
   const uploadedUrl = 'https://github.com/' + Object.keys(branches)[0] + '/tree/' + branches[Object.keys(branches)[0]] + '/' + directory;
   elem.addEventListener('click', function () {
@@ -50,7 +50,7 @@ function markUploadedCSS(branches, directory) {
  */
 function markUploadFailedCSS() {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   elem.className = 'markuploadfailed';
 }
 

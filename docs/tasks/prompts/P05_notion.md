@@ -146,7 +146,7 @@ async function getNotionConfig() {
 async function createNotionEntry(entry) {
   const { token, dbId } = await getNotionConfig();
   if (!token || !dbId) {
-    console.log('[CTL] Notion 미설정 — 스킵 (정상)');
+    console.log('[ALG] Notion 미설정 — 스킵 (정상)');
     return { skipped: true };
   }
 
@@ -192,13 +192,13 @@ async function createNotionEntry(entry) {
 
     if (!res.ok) {
       const err = await res.json();
-      console.error('[CTL] Notion 오류:', err);
+      console.error('[ALG] Notion 오류:', err);
       return { success: false, error: err.message };
     }
-    console.log('[CTL] Notion 기록 완료:', entry.title);
+    console.log('[ALG] Notion 기록 완료:', entry.title);
     return { success: true };
   } catch (err) {
-    console.error('[CTL] Notion 네트워크 오류:', err);
+    console.error('[ALG] Notion 네트워크 오류:', err);
     return { success: false, error: err.message };
   }
 }

@@ -1,1 +1,1 @@
-console.log('CodeTestLog inject 성공!');
+console.log('Algolog inject 성공!');
