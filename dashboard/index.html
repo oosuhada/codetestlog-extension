@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeTestLog Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  </head>
+  <body>
+    <header class="db-header">
+      <div class="header-inner">
+        <h1><span class="logo">CTL</span> CodeTestLog</h1>
+        <div class="repo-input-area">
+          <input id="repo-input" type="text" placeholder="username/repo-name" autocomplete="off" />
+          <button id="load-btn" type="button">불러오기</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="hidden">
+      <section class="cards-grid" aria-label="요약 통계">
+        <div class="stat-card">
+          <span class="card-value" id="stat-total">-</span>
+          <span class="card-label">총 제출</span>
+        </div>
+        <div class="stat-card">
+          <span class="card-value" id="stat-solved">-</span>
+          <span class="card-label">해결 문제</span>
+        </div>
+        <div class="stat-card">
+          <span class="card-value" id="stat-accuracy">-</span>
+          <span class="card-label">정답률</span>
+        </div>
+        <div class="stat-card">
+          <span class="card-value" id="stat-streak">-</span>
+          <span class="card-label">연속 풀이일</span>
+        </div>
+      </section>
+
+      <section class="charts-grid" aria-label="제출 차트">
+        <div class="chart-card">
+          <h3>최근 30일 제출</h3>
+          <div class="chart-box"><canvas id="chart-daily"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>결과 분포</h3>
+          <div class="chart-box"><canvas id="chart-result"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>사이트별 제출</h3>
+          <div class="chart-box"><canvas id="chart-site"></canvas></div>
+        </div>
+      </section>
+
+      <section class="table-section">
+        <div class="table-header">
+          <h2>풀이 기록</h2>
+          <div class="filter-row">
+            <select id="filter-site" aria-label="사이트 필터">
+              <option value="">전체 사이트</option>
+            </select>
+            <select id="filter-result" aria-label="결과 필터">
+              <option value="">전체 결과</option>
+            </select>
+            <input id="filter-search" type="search" placeholder="문제명 검색" aria-label="문제명 검색" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="problem-table">
+            <thead>
+              <tr>
+                <th>문제명</th>
+                <th>사이트</th>
+                <th>레벨</th>
+                <th>결과</th>
+                <th>언어</th>
+                <th>날짜</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="empty" class="empty-state">
+      <strong>GitHub 저장소를 입력하세요.</strong>
+      <span>CodeTestLog 규칙으로 커밋된 public 레포의 풀이 기록을 보여줍니다.</span>
+    </div>
+    <div id="loading" class="loading hidden">불러오는 중...</div>
+    <div id="error" class="error hidden"></div>
+
+    <script src="components/stats_cards.js"></script>
+    <script src="components/charts.js"></script>
+    <script src="components/problem_table.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

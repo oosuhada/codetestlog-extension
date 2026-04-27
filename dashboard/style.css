@@ -1,0 +1,412 @@
+:root {
+  --bg: #101114;
+  --surface: #171a21;
+  --surface-strong: #1f232d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #4fd1c5;
+  --accent-ink: #061817;
+  --correct: #3fb950;
+  --wrong: #f85149;
+  --timeout: #d29922;
+  --runtime: #f97316;
+  --compile: #a78bfa;
+  --memory: #38bdf8;
+  --partial: #eab308;
+  --font: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  letter-spacing: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.db-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 16px 24px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  margin-right: 8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: 2px;
+}
+
+.repo-input-area {
+  display: flex;
+  gap: 8px;
+}
+
+.repo-input-area input {
+  width: 230px;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.repo-input-area input:focus,
+.filter-row input:focus,
+.filter-row select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.16);
+}
+
+.repo-input-area button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  padding: 7px 14px;
+  font-weight: 700;
+}
+
+.repo-input-area button:hover {
+  filter: brightness(1.06);
+}
+
+main {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 24px 36px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  min-height: 118px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 20px;
+  text-align: center;
+}
+
+.card-value {
+  display: block;
+  color: var(--accent);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.card-label {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  min-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.chart-card h3 {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.chart-box {
+  position: relative;
+  height: 238px;
+}
+
+.table-section {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-row select,
+.filter-row input {
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.filter-row input {
+  width: 190px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+th {
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 10px 20px;
+  text-align: left;
+}
+
+td {
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  padding: 12px 20px;
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.problem-title {
+  display: block;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.problem-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.problem-title a:hover {
+  color: var(--accent);
+}
+
+.problem-id {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.result-badge {
+  display: inline-block;
+  min-width: 58px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  text-align: center;
+}
+
+.badge-correct {
+  background: var(--correct);
+  color: #04110a;
+}
+
+.badge-wrong {
+  background: var(--wrong);
+  color: #fff;
+}
+
+.badge-timeout {
+  background: var(--timeout);
+  color: #100c03;
+}
+
+.badge-runtime_error {
+  background: var(--runtime);
+  color: #fff;
+}
+
+.badge-compile_error {
+  background: var(--compile);
+  color: #130a2a;
+}
+
+.badge-memory_exceeded {
+  background: var(--memory);
+  color: #031119;
+}
+
+.badge-partial {
+  background: var(--partial);
+  color: #120f02;
+}
+
+.badge-run {
+  background: var(--muted);
+  color: #080a0d;
+}
+
+.empty-row {
+  color: var(--muted);
+  padding: 26px 20px;
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.empty-state,
+.loading,
+.error {
+  max-width: 760px;
+  margin: 64px auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.empty-state strong {
+  display: block;
+  color: var(--text);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.empty-state span,
+.loading {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.error {
+  color: var(--wrong);
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .header-inner,
+  .table-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .repo-input-area {
+    width: 100%;
+  }
+
+  .repo-input-area input {
+    flex: 1;
+    width: auto;
+  }
+
+  .cards-grid,
+  .charts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .db-header {
+    padding: 14px 16px;
+  }
+
+  main {
+    margin-top: 16px;
+    padding: 0 16px 28px;
+  }
+
+  .cards-grid,
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-row {
+    flex-direction: column;
+  }
+
+  .filter-row input,
+  .filter-row select {
+    width: 100%;
+  }
+}
