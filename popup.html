@@ -49,6 +49,24 @@
           </div>
         </div>
 
+        <div id="notion-section" class="settings-section">
+          <h3>Notion 오답노트 <span class="badge-optional">선택</span></h3>
+          <p class="settings-desc">설정하지 않아도 GitHub 커밋은 정상 동작합니다.</p>
+
+          <label for="notion-token">Integration Token</label>
+          <input type="password" id="notion-token" placeholder="secret_xxxxxxxxxxxx" autocomplete="off" />
+
+          <label for="notion-db-id">Database ID</label>
+          <input type="text" id="notion-db-id" placeholder="32자리 (URL에서 복사)" autocomplete="off" />
+
+          <div class="button-row">
+            <button id="notion-save-btn" type="button">저장</button>
+            <button id="notion-test-btn" type="button">연결 테스트</button>
+            <button id="notion-clear-btn" type="button" class="btn-danger">초기화</button>
+          </div>
+          <span id="notion-status" class="status-text"></span>
+        </div>
+
         <!-- 기능 on/off -->
         <div style="margin-top: 10px">
           <input type="checkbox" id="onffbox" />
