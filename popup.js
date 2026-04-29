@@ -22,6 +22,36 @@ $('#authenticate').on('click', () => {
 /* Get URL for welcome page */
 $('#welcome_URL').attr('href', `chrome-extension://${chrome.runtime.id}/welcome.html`);
 $('#hook_URL').attr('href', `chrome-extension://${chrome.runtime.id}/welcome.html`);
+$('#settings_URL').attr('href', `chrome-extension://${chrome.runtime.id}/welcome.html`);
+$('#dashboard_URL').attr('href', `chrome-extension://${chrome.runtime.id}/dashboard/index.html`);
+
+function openSidePanel() {
+  const reportError = (message) => {
+    const statusEl = document.getElementById('popup-status');
+    if (statusEl) statusEl.textContent = message;
+  };
+
+  chrome.windows.getCurrent((currentWindow) => {
+    const windowId = currentWindow?.id;
+    if (!windowId) {
+      reportError('사이드 패널을 열 창을 찾지 못했습니다.');
+      return;
+    }
+
+    if (chrome.sidePanel?.open) {
+      chrome.sidePanel.open({ windowId })
+        .then(() => window.close())
+        .catch(() => {
+          chrome.runtime.sendMessage({ type: 'CTL_OPEN_SIDE_PANEL', windowId }, () => window.close());
+        });
+      return;
+    }
+
+    chrome.runtime.sendMessage({ type: 'CTL_OPEN_SIDE_PANEL', windowId }, () => window.close());
+  });
+}
+
+$('#open_side_panel').on('click', openSidePanel);
 
 function getNotionInputValues() {
   return {

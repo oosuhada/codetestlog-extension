@@ -140,6 +140,38 @@ body {
   text-transform: none;
 }
 
+.setup-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 12px;
+}
+
+.setup-title {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.setup-desc {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.panel-button {
+  width: 100%;
+  min-height: 32px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .commit-card,
 .attempts-card {
   border-radius: var(--radius);
