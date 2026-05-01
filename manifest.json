@@ -44,6 +44,7 @@
     "https://api.github.com/",
     "https://swexpertacademy.com/",
     "https://solved.ac/api/v3/*",
+    "https://leetcode.com/*",
     "https://level.goorm.io/"
   ],
   "web_accessible_resources": [
@@ -95,12 +96,15 @@
         "scripts/authorize.js",
         "scripts/storage.js",
         "scripts/enable.js",
+        "scripts/core/site_adapter.js",
+        "scripts/core/commit_handler.js",
         "scripts/baekjoon/statusicons.js",
         "scripts/baekjoon/variables.js",
         "scripts/baekjoon/storage.js",
         "scripts/baekjoon/parsing.js",
         "scripts/baekjoon/util.js",
         "scripts/baekjoon/uploadfunctions.js",
+        "scripts/baekjoon/adapter.js",
         "scripts/baekjoon/baekjoon.js"
       ],
       "run_at": "document_idle"
@@ -120,11 +124,14 @@
         "scripts/authorize.js",
         "scripts/storage.js",
         "scripts/enable.js",
+        "scripts/core/site_adapter.js",
+        "scripts/core/commit_handler.js",
         "scripts/programmers/variables.js",
         "scripts/programmers/submission_state.js",
         "scripts/programmers/util.js",
         "scripts/programmers/parsing.js",
         "scripts/programmers/uploadfunctions.js",
+        "scripts/programmers/adapter.js",
         "scripts/programmers/programmers.js"
       ],
       "run_at": "document_idle"
@@ -144,12 +151,33 @@
         "scripts/authorize.js",
         "scripts/storage.js",
         "scripts/enable.js",
+        "scripts/core/site_adapter.js",
+        "scripts/core/commit_handler.js",
         "scripts/swexpertacademy/storage.js",
         "scripts/swexpertacademy/variables.js",
         "scripts/swexpertacademy/util.js",
         "scripts/swexpertacademy/parsing.js",
         "scripts/swexpertacademy/uploadfunctions.js",
+        "scripts/swexpertacademy/adapter.js",
         "scripts/swexpertacademy/swexpertacademy.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://leetcode.com/*"
+      ],
+      "js": [
+        "library/sha1.min.js",
+        "scripts/util.js",
+        "scripts/Github.js",
+        "scripts/ctl_storage_keys.js",
+        "scripts/authorize.js",
+        "scripts/storage.js",
+        "scripts/enable.js",
+        "scripts/core/site_adapter.js",
+        "scripts/core/commit_handler.js",
+        "scripts/leetcode/adapter.js"
       ],
       "run_at": "document_idle"
     },
