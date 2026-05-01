@@ -1,6 +1,35 @@
+:root {
+  color-scheme: light;
+  --popup-bg: #fff8ee;
+  --popup-surface: #f7efe3;
+  --popup-surface-2: #fffaf2;
+  --popup-border: #d8c8b4;
+  --popup-text: #2a251f;
+  --popup-muted: #746958;
+  --popup-accent: #8f6a2f;
+  --popup-accent-soft: #f0e3d1;
+  --popup-danger: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --popup-bg: #111111;
+    --popup-surface: #191919;
+    --popup-surface-2: #242424;
+    --popup-border: #333333;
+    --popup-text: #f2f2ef;
+    --popup-muted: #aaa39a;
+    --popup-accent: #d8b26e;
+    --popup-accent-soft: #2d2821;
+    --popup-danger: #d36b5f;
+  }
+}
+
 body {
   width: 350px;
-  background-color: white !important;
+  background-color: var(--popup-bg) !important;
+  color: var(--popup-text);
   padding: 10px;
   text-align: center;
   transition: background-color 0.75s ease;
@@ -15,6 +44,7 @@ body {
   font-weight: bold;
   margin-bottom: 0px;
   margin-top: 10px;
+  color: var(--popup-text);
   letter-spacing: 0;
 }
 
@@ -23,11 +53,12 @@ body {
   font-size: 14px;
   font-weight: normal;
   margin-bottom: 0px;
+  color: var(--popup-muted);
 }
 
 .onboarding {
   font-family: sans-serif;
-  border-top: solid black 1px;
+  border-top: solid var(--popup-border) 1px;
   font-weight: 500;
   padding-top: 2%;
   font-size: medium;
@@ -77,17 +108,17 @@ body {
   width: 100%;
   margin: 12px 0 4px;
   padding: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--popup-border);
   border-radius: 6px;
   text-align: left;
-  background: #f8fafc;
+  background: var(--popup-surface);
 }
 
 .settings-section h3 {
   margin: 0 0 6px;
   font-size: 15px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--popup-text);
 }
 
 .badge-optional {
@@ -95,8 +126,8 @@ body {
   margin-left: 4px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: #f0e3d1;
-  color: #8f6a2f;
+  background: var(--popup-accent-soft);
+  color: var(--popup-accent);
   font-size: 11px;
   font-weight: 700;
   vertical-align: middle;
@@ -104,7 +135,7 @@ body {
 
 .settings-desc {
   margin: 0 0 10px;
-  color: #64748b;
+  color: var(--popup-muted);
   font-size: 12px;
   line-height: 1.4;
 }
@@ -112,27 +143,60 @@ body {
 .settings-section label {
   display: block;
   margin: 8px 0 4px;
-  color: #334155;
+  color: var(--popup-text);
   font-size: 12px;
   font-weight: 700;
 }
 
-.settings-section input {
+.settings-section input,
+.settings-section select,
+.settings-section textarea {
   width: 100%;
   min-height: 32px;
   padding: 7px 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--popup-border);
   border-radius: 4px;
-  background: #fff;
-  color: #0f172a;
+  background: var(--popup-surface-2);
+  color: var(--popup-text);
   font-size: 12px;
   box-sizing: border-box;
 }
 
-.settings-section input:focus {
-  border-color: #8f6a2f;
+.settings-section textarea {
+  min-height: 82px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.settings-section input:focus,
+.settings-section select:focus,
+.settings-section textarea:focus {
+  border-color: var(--popup-accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(47, 84, 150, 0.14);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--popup-accent) 20%, transparent);
+}
+
+.settings-hint {
+  margin: 5px 0 0;
+  color: var(--popup-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.checkbox-label input {
+  width: auto;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--popup-accent);
 }
 
 .button-row {
@@ -144,22 +208,22 @@ body {
 
 .button-row button {
   min-height: 30px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--popup-border);
   border-radius: 4px;
-  background: #fff;
-  color: #1f2937;
+  background: var(--popup-surface-2);
+  color: var(--popup-text);
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
 }
 
 .button-row button:hover {
-  background: #eef2ff;
+  background: var(--popup-accent-soft);
 }
 
 .button-row .btn-danger {
   border-color: #fecaca;
-  color: #b91c1c;
+  color: var(--popup-danger);
 }
 
 .button-row .btn-danger:hover {
@@ -170,7 +234,7 @@ body {
   display: block;
   min-height: 18px;
   margin-top: 8px;
-  color: #475569;
+  color: var(--popup-muted);
   font-size: 12px;
   line-height: 1.4;
 }

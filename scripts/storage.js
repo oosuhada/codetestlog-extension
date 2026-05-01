@@ -11,6 +11,9 @@ var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   notionDbId:   'ctl_notion_db_id',
   aiProvider:   'ctl_ai_provider',
   aiApiKey:     'ctl_ai_api_key',
+  aiApiKeys:    'ctl_ai_api_keys',
+  aiOnlyWrong:  'ctl_ai_only_wrong',
+  aiKeyCursor:  'ctl_ai_key_cursor',
   isEnabled:    'ctl_is_enabled',
   oauthPipe:    'ctl_oauth_pipe',
   modeType:     'ctl_mode_type',
@@ -18,6 +21,7 @@ var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   orgOption:    'ctl_org_option',
   userPrefix:   'ctl_user_prefix',
   saveExamples: 'ctl_save_examples',
+  sidePanelState: 'ctl_side_panel_state',
   theme:        'ctl_theme',
   language:     'ctl_language',
 };

@@ -45,6 +45,7 @@ function createEmptyState() {
   return {
     lastCommit: null,
     currentProblem: null,
+    ai: null,
     todayStats: { date: todayKey(), total: 0, correct: 0, problems: [] },
     history: [],
     processedEventIds: [],
@@ -69,6 +70,7 @@ function normalizeState(rawState) {
       attemptCount: Number(next.currentProblem.attemptCount || 0),
     };
   }
+  next.ai = rawState?.ai && typeof rawState.ai === 'object' ? rawState.ai : null;
   next.history = Array.isArray(next.history) ? next.history.slice(0, 5) : [];
   next.processedEventIds = Array.isArray(next.processedEventIds) ? next.processedEventIds.slice(-50) : [];
   return next;
@@ -79,6 +81,7 @@ function render() {
   renderAttempts();
   renderToday();
   renderHistory();
+  renderAi();
 }
 
 function renderLastCommit() {
@@ -198,6 +201,43 @@ function renderHistory() {
   });
 }
 
+function renderAi() {
+  const section = $('section-ai');
+  const loading = $('ai-loading');
+  const result = $('ai-result');
+  const disabled = $('ai-disabled');
+  const error = $('ai-error');
+  const ai = state.ai;
+
+  [loading, result, disabled, error].forEach((element) => element.classList.add('hidden'));
+
+  if (!ai || !ai.status) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+
+  if (ai.status === 'loading') {
+    loading.classList.remove('hidden');
+    return;
+  }
+
+  if (ai.status === 'disabled') {
+    disabled.classList.remove('hidden');
+    return;
+  }
+
+  if (ai.status === 'error') {
+    error.textContent = ai.error || 'AI 분석에 실패했습니다.';
+    error.classList.remove('hidden');
+    return;
+  }
+
+  result.textContent = ai.analysis || '분석 결과가 비어 있습니다.';
+  result.classList.remove('hidden');
+}
+
 function formatTime(ts) {
   if (!ts) return '-';
   const date = new Date(ts);
@@ -215,6 +255,7 @@ function setStatusDot(status) {
 
 function flashStatusFromEvent(event) {
   if (!event) return;
+  if (event.phase === 'ai') return;
   clearTimeout(idleTimer);
 
   if (event.phase === 'start') {
@@ -249,6 +290,16 @@ chrome.runtime.onMessage.addListener((message) => {
     state = normalizeState(message.payload?.state);
     render();
     flashStatusFromEvent(message.payload?.event);
+    return;
+  }
+
+  if (message.type === 'CTL_AI_RESULT') {
+    state.ai = {
+      ...(state.ai || {}),
+      status: message.payload?.status || 'ready',
+      analysis: message.payload?.analysis || '',
+    };
+    renderAi();
   }
 });
 

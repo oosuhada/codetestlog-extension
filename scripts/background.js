@@ -1,5 +1,6 @@
 importScripts('ctl_storage_keys.js');
 importScripts('core/notion_client.js');
+importScripts('core/ai_client.js');
 
 const CTL_PANEL_STATE_KEY = CTL_STORAGE_KEYS.sidePanelState || 'ctl_side_panel_state';
 const CTL_PANEL_HISTORY_LIMIT = 5;
@@ -29,6 +30,7 @@ function createEmptyPanelState() {
   return {
     lastCommit: null,
     currentProblem: null,
+    ai: null,
     todayStats: { date: getPanelTodayKey(), total: 0, correct: 0, problems: [] },
     history: [],
     processedEventIds: [],
@@ -53,6 +55,7 @@ function normalizePanelState(rawState) {
       attemptCount: Number(state.currentProblem.attemptCount || 0),
     };
   }
+  state.ai = rawState?.ai && typeof rawState.ai === 'object' ? rawState.ai : null;
   state.history = Array.isArray(state.history) ? state.history.slice(0, CTL_PANEL_HISTORY_LIMIT) : [];
   state.processedEventIds = Array.isArray(state.processedEventIds)
     ? state.processedEventIds.slice(-CTL_PANEL_EVENT_LIMIT)
@@ -128,7 +131,14 @@ function ensurePanelCurrentProblem(state, event, useFirstAttemptAt) {
 
 function applyProblemContextToPanelState(state, payload = {}) {
   const event = normalizePanelPayload({ ...payload, phase: 'context', timestamp: Date.now() });
+  const previousProblemKey = state.currentProblem
+    ? `${state.currentProblem.site}:${state.currentProblem.id}`
+    : '';
   ensurePanelCurrentProblem(state, event, false);
+  const nextProblemKey = `${event.site}:${event.problemId}`;
+  if (previousProblemKey && previousProblemKey !== nextProblemKey) {
+    state.ai = null;
+  }
   return { state, event };
 }
 
@@ -138,6 +148,7 @@ function applyCommitEventToPanelState(state, payload = {}) {
 
   ensurePanelCurrentProblem(state, event, event.phase !== 'start');
   if (event.phase === 'start') {
+    state.ai = null;
     return { state, event };
   }
 
@@ -197,6 +208,24 @@ async function updatePanelStateFromMessage(request) {
   await savePanelState(result.state);
   notifyPanelStateUpdated(result.state, result.event);
   return { ok: true };
+}
+
+async function updatePanelAiState(aiState) {
+  const state = await getPanelState();
+  state.ai = {
+    ...aiState,
+    updatedAt: Date.now(),
+  };
+  await savePanelState(state);
+  notifyPanelStateUpdated(state, {
+    phase: 'ai',
+    result: aiState.status || 'ready',
+    problemId: aiState.problemId,
+    problemName: aiState.problemName,
+    site: aiState.site,
+    success: aiState.status !== 'error',
+    timestamp: Date.now(),
+  });
 }
 
 function enableSidePanelBehavior() {
@@ -259,8 +288,82 @@ async function recordSuccessfulCommitToNotion(payload = {}) {
   });
 }
 
+async function maybeRunAiAnalysis(payload = {}) {
+  if (payload.phase && payload.phase !== 'complete') return;
+  if (payload.success !== true || !payload.code) return;
+
+  const config = await CTLAiClient.getAiConfig();
+  if (!CTLAiClient.shouldAnalyzeResult(payload.result, config)) return;
+
+  const baseAiState = {
+    eventId: payload.eventId || '',
+    result: payload.result || '',
+    problemId: payload.problemId || '',
+    problemName: payload.problemName || '',
+    site: payload.site || '',
+    provider: config.provider || '',
+  };
+
+  if (!CTLAiClient.hasAiConfig(config)) {
+    await updatePanelAiState({
+      ...baseAiState,
+      status: 'disabled',
+      analysis: '',
+      error: '',
+    });
+    return;
+  }
+
+  await updatePanelAiState({
+    ...baseAiState,
+    status: 'loading',
+    analysis: '',
+    error: '',
+  });
+
+  try {
+    const analysis = await CTLAiClient.analyzeCode({
+      code: payload.code,
+      result: payload.result,
+      language: payload.language || '',
+      problemTitle: payload.problemName,
+      level: payload.level || '',
+    });
+
+    await updatePanelAiState({
+      ...baseAiState,
+      status: analysis ? 'ready' : 'empty',
+      analysis: analysis || '',
+      error: '',
+    });
+
+    try {
+      const result = chrome.runtime.sendMessage({
+        type: 'CTL_AI_RESULT',
+        payload: { status: analysis ? 'ready' : 'empty', analysis: analysis || '' },
+      });
+      if (result && typeof result.catch === 'function') result.catch(() => {});
+    } catch (_) {}
+  } catch (error) {
+    console.error('[ALG] AI optional flow failed:', error);
+    await updatePanelAiState({
+      ...baseAiState,
+      status: 'error',
+      analysis: '',
+      error: error.message || 'AI 분석에 실패했습니다.',
+    });
+  }
+}
+
 function handleMessage(request, sender, sendResponse) {
   migrateLegacyStorageKeys();
+
+  if (request && request.type === 'CTL_AI_TEST') {
+    CTLAiClient.testConnection()
+      .then((response) => sendResponse(response))
+      .catch((error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 
   if (request && request.type === 'CTL_NOTION_TEST') {
     testNotionConnection()
@@ -277,7 +380,14 @@ function handleMessage(request, sender, sendResponse) {
     }
 
     updatePanelStateFromMessage(request)
-      .then((response) => sendResponse(response))
+      .then((response) => {
+        if (request.type === 'CTL_COMMIT_EVENT') {
+          maybeRunAiAnalysis(request.payload).catch((error) => {
+            console.error('[ALG] AI optional flow failed:', error);
+          });
+        }
+        sendResponse(response);
+      })
       .catch((error) => {
         console.error('[ALG] Side Panel 상태 갱신 실패:', error);
         sendResponse({ ok: false, error: error.message });

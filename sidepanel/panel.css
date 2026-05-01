@@ -127,6 +127,19 @@ body {
   text-transform: uppercase;
 }
 
+.badge-optional {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: none;
+}
+
 .commit-card,
 .attempts-card {
   border-radius: var(--radius);
@@ -320,6 +333,17 @@ body {
   flex-shrink: 0;
   color: var(--text-muted);
   font-size: 11px;
+}
+
+.ai-result-box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .hidden {
