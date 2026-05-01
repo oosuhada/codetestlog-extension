@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeTestLog</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="ctl-header">
+      <span class="ctl-logo">CTL</span>
+      <span class="ctl-title">CodeTestLog</span>
+      <span id="status-dot" class="status-dot status-idle" title="대기 중"></span>
+    </header>
+
+    <section class="panel-section" id="section-last-commit">
+      <h3 class="section-title">마지막 커밋</h3>
+      <div id="last-commit-empty" class="empty-state">아직 커밋 없음</div>
+      <div id="last-commit-card" class="commit-card hidden">
+        <div class="commit-result-badge" id="commit-result-badge">-</div>
+        <div class="commit-meta">
+          <div class="commit-problem" id="commit-problem-name">-</div>
+          <div class="commit-state" id="commit-state">-</div>
+          <div class="commit-filename" id="commit-filename">-</div>
+          <div class="commit-path" id="commit-path">-</div>
+        </div>
+        <div class="commit-time" id="commit-time">-</div>
+      </div>
+    </section>
+
+    <section class="panel-section" id="section-attempts">
+      <h3 class="section-title">현재 문제</h3>
+      <div id="attempts-empty" class="empty-state">문제를 열면 통계가 표시됩니다</div>
+      <div id="attempts-card" class="attempts-card hidden">
+        <div class="problem-title" id="attempts-problem-title">-</div>
+        <div class="attempts-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="stat-attempt-count">0</span>
+            <span class="stat-label">번째 시도</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-elapsed">0분</span>
+            <span class="stat-label">경과 시간</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-wrong-count">0</span>
+            <span class="stat-label">오답 횟수</span>
+          </div>
+        </div>
+        <div class="attempt-timeline" id="attempt-timeline"></div>
+      </div>
+    </section>
+
+    <section class="panel-section" id="section-today">
+      <h3 class="section-title">오늘</h3>
+      <div class="today-grid">
+        <div class="stat-item">
+          <span class="stat-value" id="today-total">0</span>
+          <span class="stat-label">총 제출</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="today-correct">0</span>
+          <span class="stat-label">정답</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="today-problems">0</span>
+          <span class="stat-label">해결 문제</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel-section" id="section-history">
+      <h3 class="section-title">최근 기록</h3>
+      <ul class="history-list" id="history-list">
+        <li class="empty-state">아직 기록 없음</li>
+      </ul>
+    </section>
+
+    <script src="../scripts/ctl_storage_keys.js"></script>
+    <script src="panel.js"></script>
+  </body>
+</html>
