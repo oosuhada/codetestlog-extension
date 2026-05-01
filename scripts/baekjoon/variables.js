@@ -1,3 +1,19 @@
+/*
+ * [CTL Analysis - P03]
+ * 제출 감지 방식: scripts/baekjoon/baekjoon.js가 /status 페이지에서 2초 주기로 #status-table을 폴링한다.
+ * 결과 판별 URL: https://www.acmicpc.net/status?...user_id={username}&problem_id={id}&from_mine=1
+ * 결과 판별 DOM 선택자: #status-table row의 결과 cell, data-color 속성(ac/wa/tle/mle/rte/ce 등)
+ * 정답/오답 분기 위치: baekjoon.js startLoader()가 accepted만 beginUpload()로 넘기고, uploadfunctions.js가 항상 README 포함 커밋을 만든다.
+ * 티어 정보 취득 방법: 기존은 solved.ac 응답 level을 bj_level로 변환하며, API 실패 fallback이 없다.
+ *
+ * P01과의 차이점:
+ *   - 프로그래머스는 제출 결과 모달을 감지하지만, 백준은 status 테이블의 최신 제출 row를 감지한다.
+ *   - 백준은 제출 번호(submissionId)가 있어 같은 제출의 중복 커밋 방지가 가능하다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: accepted가 아닌 최종 결과를 채점 대기처럼 처리해 오답/시간초과/런타임 에러 커밋이 발생하지 않는다.
+ *   - BUG-2: solved.ac API 실패 시 문제 제목/티어 파싱 전체가 실패해 업로드가 중단될 수 있다.
+ */
 /* 백준 허브의 전역 변수 선언 파일입니다. */
 /* 포함된 변수는 다음과 같습니다. 
     languages: 백준의 언어 및 그에 맞는 file extension
@@ -92,6 +108,33 @@ function getLanguageExtension(language) {
   return match ? languageExtensions[match] : 'txt';
 }
 
+const LANG_EXT_MAP = {
+  'Python 3': 'py',
+  'PyPy3': 'py',
+  'Python 2': 'py',
+  'PyPy2': 'py',
+  'Java 11': 'java',
+  'Java 8': 'java',
+  'Java 8 (OpenJDK)': 'java',
+  'C++17': 'cpp',
+  'C++14': 'cpp',
+  'C++11': 'cpp',
+  'C++': 'cpp',
+  C: 'c',
+  C11: 'c',
+  'JavaScript (Node.js)': 'js',
+  TypeScript: 'ts',
+  'Kotlin (JVM)': 'kt',
+  Swift: 'swift',
+  Go: 'go',
+  Rust: 'rs',
+  Ruby: 'rb',
+};
+
+function langToExt(lang) {
+  return LANG_EXT_MAP[lang] || getLanguageExtension(lang || '');
+}
+
 // // If a new language is added, perform the update manually using the script below.
 // // parsing all languages on https://help.acmicpc.net/language/info/all
 // [...document.querySelectorAll('div.card')]
@@ -171,6 +214,67 @@ const RESULT_CATEGORY = {
   RESULT_DELETED: 'del',
 };
 
+// ─── CTL: 백준 결과 매핑 ──────────────────────────────────────────────────────
+const BOJ_RESULT_MAP = {
+  '맞았습니다!!': 'correct',
+  '틀렸습니다': 'wrong',
+  '시간 초과': 'timeout',
+  '메모리 초과': 'memory_exceeded',
+  '런타임 에러': 'runtime_error',
+  '컴파일 에러': 'compile_error',
+  '출력 초과': 'wrong',
+  '출력 형식이 잘못되었습니다': 'wrong',
+  '!맞았습니다': 'wrong',
+  '부분 점수': 'partial',
+  Accepted: 'correct',
+  'Wrong Answer': 'wrong',
+  'Time Limit Exceeded': 'timeout',
+  'Memory Limit Exceeded': 'memory_exceeded',
+  'Runtime Error': 'runtime_error',
+  'Compilation Error': 'compile_error',
+  'Output Limit Exceeded': 'wrong',
+  'Presentation Error': 'wrong',
+};
+
+const BOJ_RESULT_CATEGORY_MAP = {
+  [RESULT_CATEGORY.RESULT_ACCEPTED]: 'correct',
+  [RESULT_CATEGORY.RESULT_PARTIALLY_ACCEPTED]: 'partial',
+  [RESULT_CATEGORY.RESULT_PRESENTATION_ERROR]: 'wrong',
+  [RESULT_CATEGORY.RESULT_WRONG_ANSWER]: 'wrong',
+  [RESULT_CATEGORY.RESULT_ACCEPTED_NOT_CORRECT]: 'wrong',
+  [RESULT_CATEGORY.RESULT_TIME_LIMIT_EXCEEDED]: 'timeout',
+  [RESULT_CATEGORY.RESULT_MEMORY_LIMIT_EXCEEDED]: 'memory_exceeded',
+  [RESULT_CATEGORY.RESULT_OUTPUT_LIMIT_EXCEEDED]: 'wrong',
+  [RESULT_CATEGORY.RESULT_RUNTIME_ERROR]: 'runtime_error',
+  [RESULT_CATEGORY.RESULT_COMPILATION_ERROR]: 'compile_error',
+};
+
+const BOJ_PENDING_RESULT_CATEGORIES = new Set([
+  RESULT_CATEGORY.RESULT_PENDING,
+  RESULT_CATEGORY.RESULT_PENDING_REJUDGE,
+  RESULT_CATEGORY.RESULT_PREPARE_FOR_JUDGE,
+  RESULT_CATEGORY.RESULT_JUDGING,
+]);
+
+function normalizeBojResult(rawResult, resultCategory) {
+  if (BOJ_RESULT_CATEGORY_MAP[resultCategory]) return BOJ_RESULT_CATEGORY_MAP[resultCategory];
+  const text = `${rawResult || ''}`.replace(/\s+/g, ' ').trim();
+  if (!text) return 'wrong';
+  if (/^\d+\s*점$/.test(text)) return 'partial';
+  return BOJ_RESULT_MAP[text] || 'wrong';
+}
+
+function isBojPendingResult(resultCategory, rawResult) {
+  if (BOJ_PENDING_RESULT_CATEGORIES.has(resultCategory)) return true;
+  const text = `${rawResult || ''}`.replace(/\s+/g, ' ').trim();
+  return ['기다리는 중', '재채점을 기다리는 중', '채점 준비 중', '채점 중', 'Pending', 'Preparing for Judging', 'Judging'].includes(text);
+}
+
+function isCorrectBojResult(result) {
+  return result === 'correct';
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 /* 채점 결과에 대한 각 메시지 구분 맵핑 */
 const RESULT_MESSAGE = {
   [RESULT_CATEGORY.RESULT_PENDING]: '기다리는 중',
@@ -209,6 +313,59 @@ const RESULT_MESSAGE = {
 
 /* state of upload for progress */
 const uploadState = { uploading: false };
+
+const BojSubmissionState = (() => {
+  const STATE = {
+    IDLE: 'IDLE',
+    WAITING: 'WAITING',
+    RESULT_READY: 'RESULT_READY',
+    COMMITTING: 'COMMITTING',
+  };
+
+  let current = STATE.IDLE;
+  const pendingQueue = [];
+  const detectedSignatures = new Set();
+
+  return {
+    STATE,
+    get() {
+      return current;
+    },
+    transition(next) {
+      console.log(`[CTL][BOJ] State: ${current} -> ${next}`);
+      current = next;
+    },
+    hasDetected(signature) {
+      return detectedSignatures.has(signature);
+    },
+    markDetected(signature) {
+      if (signature) detectedSignatures.add(signature);
+    },
+    unmarkDetected(signature) {
+      if (signature) detectedSignatures.delete(signature);
+    },
+    canCommit() {
+      return current !== STATE.COMMITTING && uploadState.uploading !== true;
+    },
+    enqueue(item) {
+      if (!item) return;
+      pendingQueue.push(item);
+      console.log(`[CTL][BOJ] 제출 결과 큐 추가: ${pendingQueue.length}개 대기`);
+    },
+    dequeue() {
+      return pendingQueue.shift();
+    },
+    hasPending() {
+      return pendingQueue.length > 0;
+    },
+    markCommitStart() {
+      current = STATE.COMMITTING;
+    },
+    markCommitEnd() {
+      current = STATE.IDLE;
+    },
+  };
+})();
 
 const multiloader = {
   wrap: null,

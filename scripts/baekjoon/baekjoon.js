@@ -1,3 +1,18 @@
+/*
+ * [CTL Analysis - P03]
+ * 제출 감지 방식: /status 페이지에서 setInterval 기반 DOM 폴링으로 #status-table 최신 row를 검사한다.
+ * 결과 판별 URL: https://www.acmicpc.net/status?from_mine=1&problem_id=...&user_id=...
+ * 결과 판별 DOM 선택자: #status-table tbody tr 첫 번째 사용자 row, 결과 cell의 data-color와 innerText.
+ * 정답/오답 분기 위치: 기존 startLoader() 내부 accepted 체크와 beginUpload() 호출부.
+ * 티어 정보 취득 방법: parsing.js에서 solved.ac API를 우선 사용하고 실패 시 DOM tier 배지, 최종 fallback은 unrated.
+ *
+ * P01과의 차이점:
+ *   - 백준은 결과 row에 submissionId가 있으므로 제출 단위 중복 방지를 로컬 스토리지 키로 처리한다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: accepted가 아닌 최종 결과를 모두 pending으로 보고 return하여 오답 제출이 커밋되지 않는다.
+ *   - BUG-2: 동일 제출을 다시 보는 경우 timestamp 파일명 때문에 중복 커밋될 수 있다.
+ */
 // Set to true to enable console log
 const debug = false;
 
@@ -6,6 +21,7 @@ const debug = false;
   2초마다 문제를 파싱하여 확인
 */
 let loader;
+let pendingProcessTimer = null;
 
 const currentUrl = window.location.href;
 log(currentUrl);
@@ -33,11 +49,9 @@ if (!isNull(username)) {
   if (currentUrl.includes('/status')) injectManualUploadButtons(username);
 }
 
-/* 제출 직후에는 결과가 "기다리는 중/채점 중" → "맞았습니다"로 전이됨.
-   이력 페이지에서는 즉시 "맞았습니다"가 보이므로, 전이를 감지하여 구분함. */
-let seenPending = false;
-
 function startLoader() {
+  stopLoader();
+  BojSubmissionState.transition(BojSubmissionState.STATE.WAITING);
   loader = setInterval(async () => {
     // 기능 Off시 작동하지 않도록 함
     const enable = await checkEnable();
@@ -45,25 +59,20 @@ function startLoader() {
     else if (isExistResultTable()) {
       const table = findFromResultTable();
       if (isEmpty(table)) return;
-      const data = table[0];
+      const data = table.find((row) => row.username === findUsername()) || table[0];
       if (data.hasOwnProperty('username') && data.hasOwnProperty('resultCategory')) {
-        const { username, resultCategory } = data;
+        const { username, resultCategory, result } = data;
         if (username !== findUsername()) return;
-        const isAccepted = resultCategory.includes(RESULT_CATEGORY.RESULT_ACCEPTED) ||
-          resultCategory.includes(RESULT_CATEGORY.RESULT_ENG_ACCEPTED);
-        if (!isAccepted) {
-          // 채점 중/기다리는 중 등 비완료 상태를 감지
-          seenPending = true;
+        if (isBojPendingResult(resultCategory, result)) {
+          BojSubmissionState.transition(BojSubmissionState.STATE.WAITING);
           return;
         }
-        stopLoader();
-        if (seenPending) {
-          console.log('풀이가 맞았습니다. 업로드를 시작합니다.');
-          startUpload();
-        }
-        // !seenPending: 이력 페이지 or 재시도. beginUpload()의 SHA 체크가 중복 처리.
-        const bojData = await findData();
-        await beginUpload(bojData);
+
+        const signature = createBojSubmissionSignature(data);
+        if (BojSubmissionState.hasDetected(signature) || await isProcessedBojSubmission(data.submissionId)) return;
+        BojSubmissionState.markDetected(signature);
+        BojSubmissionState.transition(BojSubmissionState.STATE.RESULT_READY);
+        await enqueueOrUploadBoj(data, signature);
       }
     }
   }, 2000);
@@ -80,14 +89,114 @@ function toastThenStopLoader(toastMessage, errorMessage) {
   throw new Error(errorMessage)
 }
 
+function createBojSubmissionSignature(data) {
+  return `${data.submissionId || 'unknown'}:${data.resultCategory || ''}:${data.result || ''}`;
+}
+
+function getBojProcessedSubmissionKey(submissionId) {
+  return `ctl_baekjoon_submission_${submissionId || 'unknown'}`;
+}
+
+function isProcessedBojSubmission(submissionId) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([getBojProcessedSubmissionKey(submissionId)], (data) => {
+      resolve(data[getBojProcessedSubmissionKey(submissionId)] === true);
+    });
+  });
+}
+
+function markProcessedBojSubmission(submissionId) {
+  return new Promise((resolve) => {
+    chrome.storage.local.set({ [getBojProcessedSubmissionKey(submissionId)]: true }, resolve);
+  });
+}
+
+function createCtlEventId(site, problemId, signature) {
+  const randomPart = Math.random().toString(36).slice(2);
+  return `${site}:${problemId || 'unknown'}:${signature || Date.now()}:${Date.now()}:${randomPart}`;
+}
+
+function sendCtlRuntimeMessage(message) {
+  try {
+    chrome.runtime.sendMessage(message, () => {
+      if (chrome.runtime.lastError) {
+        log('[CTL][BOJ] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
+      }
+    });
+  } catch (error) {
+    log('[CTL][BOJ] Side Panel 메시지 전달 실패:', error);
+  }
+}
+
+function notifySidePanelCommitEvent({ phase, bojData, eventId, success, error }) {
+  sendCtlRuntimeMessage({
+    type: 'CTL_COMMIT_EVENT',
+    payload: {
+      eventId,
+      phase,
+      result: bojData.ctlResult || normalizeBojResult(bojData.result, bojData.resultCategory),
+      problemId: bojData.problemId,
+      problemName: bojData.title || bojData.problemTitle || `문제 ${bojData.problemId}`,
+      site: '백준',
+      fileName: bojData.fileName || '',
+      commitPath: bojData.directory || '',
+      attemptCount: bojData.attemptCount || 0,
+      success,
+      errorMessage: error ? error.message : '',
+      timestamp: Date.now(),
+    },
+  });
+}
+
+function schedulePendingQueue() {
+  clearTimeout(pendingProcessTimer);
+  pendingProcessTimer = setTimeout(processPendingQueue, 3100);
+}
+
+async function processPendingQueue() {
+  if (!BojSubmissionState.hasPending() || BojSubmissionState.get() === BojSubmissionState.STATE.COMMITTING) return;
+  const next = BojSubmissionState.dequeue();
+  if (!next) return;
+  await enqueueOrUploadBoj(next.data, next.signature);
+}
+
+async function enqueueOrUploadBoj(data, signature) {
+  if (!BojSubmissionState.canCommit()) {
+    BojSubmissionState.enqueue({ data, signature });
+    schedulePendingQueue();
+    return;
+  }
+
+  await handleBojResult(data, signature);
+}
+
+async function handleBojResult(data, signature) {
+  const bojData = await findData(data);
+  await beginUpload(bojData, signature);
+}
+
 /* 파싱 직후 실행되는 함수 */
-async function beginUpload(bojData) {
+async function beginUpload(bojData, signature = '') {
+  if (isNull(bojData)) {
+    BojSubmissionState.unmarkDetected(signature);
+    return;
+  }
   bojData = preProcessEmptyObj(bojData);
   log('bojData', bojData);
-  if (!isNull(bojData) && isNotEmpty(bojData.code) && isNotEmpty(bojData.readme) && isNotEmpty(bojData.directory)) {
+  if (isEmpty(bojData.code) || isEmpty(bojData.readme) || isEmpty(bojData.directory)) {
+    BojSubmissionState.unmarkDetected(signature);
+    return;
+  }
+
+  const eventId = createCtlEventId('baekjoon', bojData.problemId, signature);
+  uploadState.uploading = true;
+  BojSubmissionState.markCommitStart(signature);
+  startUpload();
+  notifySidePanelCommitEvent({ phase: 'start', bojData, eventId, success: true });
+
+  try {
     const stats = await getStats();
     const hook = await getHook();
-    const token = await getToken();
 
     const currentVersion = stats.version;
     /* 버전 차이가 발생하거나, 해당 hook에 대한 데이터가 없는 경우 localstorage의 Stats 값을 업데이트하고, version을 최신으로 변경한다 */
@@ -95,28 +204,19 @@ async function beginUpload(bojData) {
       await versionUpdate();
     }
 
-    /* 현재 제출하려는 소스코드가 기존 업로드한 내용과 같다면 중지 */
-    cachedSHA = await getStatsSHAfromPath(`${hook}/${bojData.directory}/${bojData.fileName}`)
-    calcSHA = calculateBlobSHA(bojData.code)
-    log('cachedSHA', cachedSHA, 'calcSHA', calcSHA)
-
-    if (isNull(cachedSHA)) {
-      /* 로컬 캐시가 없는 경우 원격 저장소에서 파일 존재 여부 실시간 확인 */
-      const remoteFile = await getFile(hook, token, `${bojData.directory}/${bojData.fileName}`);
-      if (remoteFile && remoteFile.sha === calcSHA) {
-        markUploadedCSS(stats.branches, bojData.directory);
-        console.log('원격 저장소에 동일한 파일이 존재하여 업로드를 건너뜁니다.');
-        return;
-      }
-      /* GitHub에서 파일이 삭제된 경우, 새 업로드로 처리 */
-      console.log('캐시된 SHA가 없습니다. 새로 업로드합니다.');
-    } else if (cachedSHA == calcSHA) {
-      markUploadedCSS(stats.branches, bojData.directory);
-      console.log(`현재 제출번호를 업로드한 기록이 있습니다.` /* submissionID ${bojData.submissionId}` */);
-      return;
-    }
-    /* 신규 제출 번호라면 새롭게 커밋  */
     await uploadOneSolveProblemOnGit(bojData, markUploadedCSS);
+    await markProcessedBojSubmission(bojData.submissionId);
+    notifySidePanelCommitEvent({ phase: 'complete', bojData, eventId, success: true });
+    console.log(`[CTL] 백준 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
+  } catch (error) {
+    markUploadFailedCSS();
+    BojSubmissionState.unmarkDetected(signature);
+    notifySidePanelCommitEvent({ phase: 'complete', bojData, eventId, success: false, error });
+    console.error('[CTL] 백준 커밋 실패:', error);
+  } finally {
+    uploadState.uploading = false;
+    BojSubmissionState.markCommitEnd();
+    schedulePendingQueue();
   }
 }
 
@@ -133,9 +233,16 @@ async function processManualUploadQueue() {
     button.classList.add('BaekjoonHub_progress');
     button.title = '업로드 중...';
     try {
+      if (await isProcessedBojSubmission(data.submissionId)) {
+        button.classList.remove('BaekjoonHub_progress');
+        button.classList.add('bjh-upload-success');
+        button.title = '이미 업로드됨';
+        continue;
+      }
       const bojData = await findData(data);
       if (isNotEmpty(bojData)) {
         await uploadOneSolveProblemOnGit(bojData, markUploadedCSS);
+        await markProcessedBojSubmission(bojData.submissionId);
         button.classList.remove('BaekjoonHub_progress');
         button.classList.add('bjh-upload-success');
         button.title = '업로드 완료';
@@ -159,9 +266,7 @@ function injectManualUploadButtons(currentUsername) {
   const table = findFromResultTable();
   if (isEmpty(table)) return;
   for (const row of table) {
-    const isAccepted = row.resultCategory === RESULT_CATEGORY.RESULT_ACCEPTED ||
-      row.resultCategory === RESULT_CATEGORY.RESULT_PARTIALLY_ACCEPTED;
-    if (!isAccepted) continue;
+    if (isBojPendingResult(row.resultCategory, row.result)) continue;
     if (row.username !== currentUsername) continue;
     const rowEl = document.getElementById(row.elementId);
     if (!rowEl) continue;

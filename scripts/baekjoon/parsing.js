@@ -1,7 +1,59 @@
 /*
+ * [CTL Analysis - P03]
+ * 제출 감지 방식: baekjoon.js가 status 테이블 row를 선택하면 findData(data)가 제출 코드/문제 설명/solved.ac 정보를 fetch한다.
+ * 결과 판별 URL: /status row의 problemId/submissionId로 /problem/{id}, /source/download/{submissionId}, solved.ac API를 조회한다.
+ * 결과 판별 DOM 선택자: parsingResultTableList()의 #status-table 결과 cell, data-color 속성과 innerText.
+ * 정답/오답 분기 위치: 기존 findData()는 data가 없을 때 accepted row만 필터링한다.
+ * 티어 정보 취득 방법: getSolvedACById(problemId)의 solved.ac level, 실패 시 기존 fallback이 없었다.
+ *
+ * P01과의 차이점:
+ *   - 백준은 제출 번호로 제출 단위를 특정한 뒤 별도 다운로드 URL에서 코드를 가져온다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: solved.ac 실패 시 titleKo/tags 접근에서 예외가 나며 커밋 데이터 생성이 중단된다.
+ */
+/*
   문제가 맞았다면 문제 관련 데이터를 파싱하는 함수의 모음입니다.
   모든 해당 파일의 모든 함수는 findData()를 통해 호출됩니다.
 */
+
+const SOLVED_AC_TIER = [
+  'unrated',
+  'bronze', 'bronze', 'bronze', 'bronze', 'bronze',
+  'silver', 'silver', 'silver', 'silver', 'silver',
+  'gold', 'gold', 'gold', 'gold', 'gold',
+  'platinum', 'platinum', 'platinum', 'platinum', 'platinum',
+  'diamond', 'diamond', 'diamond', 'diamond', 'diamond',
+  'ruby', 'ruby', 'ruby', 'ruby', 'ruby',
+];
+
+async function parseBojTier(problemId) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(
+      `https://solved.ac/api/v3/problem/show?problemId=${problemId}`,
+      { signal: controller.signal },
+    );
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      return SOLVED_AC_TIER[data.level] || 'unrated';
+    }
+  } catch (_) {
+    console.warn('[CTL] solved.ac API 실패, DOM fallback 시도');
+  }
+
+  try {
+    const tierImg = document.querySelector('img[src*="tier"]');
+    if (tierImg) {
+      const match = tierImg.src.match(/tier\/(\d+)/);
+      if (match) return SOLVED_AC_TIER[parseInt(match[1], 10)] || 'unrated';
+    }
+  } catch (_) {}
+
+  return 'unrated';
+}
 
 function parseSampleData(doc = document) {
   const samples = [];
@@ -49,12 +101,11 @@ async function findData(data) {
       let table = findFromResultTable();
       if (isEmpty(table)) return null;
       table = filter(table, {
-        'resultCategory': RESULT_CATEGORY.RESULT_ACCEPTED,
-        'username': findUsername(),
-        'language': table[0]["language"]
-      })
+        username: findUsername(),
+        language: table[0].language,
+      }).filter((row) => !isBojPendingResult(row.resultCategory, row.result));
       if (isEmpty(table)) return null;
-      // 자동 업로드 시 가장 최근 accepted 제출을 사용 (과거 best가 아닌 현재 제출)
+      // 자동 업로드 시 가장 최근 최종 제출을 사용 (정답뿐 아니라 오답/시간초과도 포함)
       data = table[0];
     }
     if (isNaN(Number(data.problemId)) || Number(data.problemId) < 1000) throw new Error(`정책상 대회 문제는 업로드 되지 않습니다. 대회 문제가 아니라고 판단된다면 이슈로 남겨주시길 바랍니다.\n문제 ID: ${data.problemId}`);
@@ -77,20 +128,20 @@ async function makeDetailMessageAndReadme(data) {
     problem_description, problem_input, problem_output, submissionTime,
     code, language, memory, runtime, samples } = data;
   const score = parseNumberFromString(result);
-  const directory = await buildDirectory('baekjoon', {
-    platform: '백준',
-    level: level.replace(/ .*/, ''),
-    levelFull: level,
-    id: problemId,
-    title: convertSingleCharToDoubleChar(title),
-    language: langVersionRemove(language, null),
-    _defaultDir: `백준/${level.replace(/ .*/, '')}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
+  const ctlResult = normalizeBojResult(result, data.resultCategory);
+  const tier = data.tier || await parseBojTier(problemId);
+  const attemptCount = await incrementAttemptCount('baekjoon', problemId);
+  const directory = buildCommitPath('백준', tier, problemId, title);
+  const message = buildCommitMessage({
+    result: ctlResult,
+    site: '백준',
+    level: tier,
+    title,
+    lang: language,
+    attemptCount,
   });
-  const message = `[${level}] Title: ${title}, Time: ${runtime} ms, Memory: ${memory} KB`
-    + ((isNaN(score)) ? ' ' : `, Score: ${score} point `) // 서브 태스크가 있는 문제로, 점수가 있는 경우 점수까지 커밋 메시지에 표기
-    + `-CodeTestLog`;
-  const category = problem_tags.join(', ');
-  const fileName = `${convertSingleCharToDoubleChar(title)}.${getLanguageExtension(language)}`;
+  const category = (problem_tags || ['분류 없음']).join(', ');
+  const fileName = buildFileName(ctlResult, title, langToExt(language));
   const dateInfo = submissionTime ?? getDateString(new Date(Date.now()));
   // prettier-ignore-start
   const readme = `# [${level}] ${title} - ${problemId} \n\n`
@@ -107,6 +158,9 @@ async function makeDetailMessageAndReadme(data) {
       + `### 출력 \n\n ${problem_output}\n\n` : '');
   // prettier-ignore-end
   return {
+    ctlResult,
+    attemptCount,
+    tier,
     directory,
     fileName,
     message,
@@ -171,6 +225,7 @@ function parsingResultTableList(doc) {
           if (isNull(a)) return null;
           return {
             problemId: a.getAttribute('href').replace(/^.*\/([0-9]+)$/, '$1'),
+            problemTitle: a.textContent.trim(),
           };
         default:
           return x.innerText.trim();
@@ -223,14 +278,15 @@ function findFromResultTable() {
 function parseProblemDescription(doc = document) {
   convertImageTagAbsoluteURL(doc.getElementById('problem_description')); //이미지에 상대 경로가 있을 수 있으므로 이미지 경로를 절대 경로로 전환 합니다.
   const problemId = doc.getElementsByTagName('title')[0].textContent.split(':')[0].replace(/[^0-9]/, '');
+  const problemTitle = doc.querySelector('#problem_title')?.textContent?.trim();
   const problem_description = unescapeHtml(doc.getElementById('problem_description').innerHTML.trim());
   const problem_input = doc.getElementById('problem_input')?.innerHTML.trim?.().unescapeHtml?.() || 'Empty'; // eslint-disable-line
   const problem_output = doc.getElementById('problem_output')?.innerHTML.trim?.().unescapeHtml?.() || 'Empty'; // eslint-disable-line
   const samples = parseSampleData(doc);
   if (problemId && problem_description) {
     log(`문제번호 ${problemId}의 내용을 저장합니다.`);
-    updateProblemsFromStats({ problemId, problem_description, problem_input, problem_output, samples});
-    return { problemId, problem_description, problem_input, problem_output, samples};
+    updateProblemsFromStats({ problemId, problemTitle, problem_description, problem_input, problem_output, samples});
+    return { problemId, problemTitle, problem_description, problem_input, problem_output, samples};
   }
   return {};
 }
@@ -289,14 +345,20 @@ async function getSolvedACById(problemId) {
 async function findProblemInfoAndSubmissionCode(problemId, submissionId) {
   log('in find with promise');
   if (!isNull(problemId) && !isNull(submissionId)) {
-    return Promise.all([getProblemDescriptionById(problemId), getSubmitCodeById(submissionId), getSolvedACById(problemId)])
-      .then(([description, code, solvedJson]) => {
-        const problem_tags = solvedJson.tags.flatMap((tag) => tag.displayNames).filter((tag) => tag.language === 'ko').map((tag) => tag.name);
-        const title = solvedJson.titleKo;
-        const level = bj_level[solvedJson.level];
+    return Promise.allSettled([getProblemDescriptionById(problemId), getSubmitCodeById(submissionId), getSolvedACById(problemId)])
+      .then(async ([descriptionResult, codeResult, solvedResult]) => {
+        const description = descriptionResult.status === 'fulfilled' ? descriptionResult.value : {};
+        const code = codeResult.status === 'fulfilled' ? codeResult.value : '';
+        const solvedJson = solvedResult.status === 'fulfilled' ? solvedResult.value : null;
+        const problem_tags = solvedJson?.tags
+          ? solvedJson.tags.flatMap((tag) => tag.displayNames).filter((tag) => tag.language === 'ko').map((tag) => tag.name)
+          : ['분류 없음'];
+        const title = solvedJson?.titleKo || description.problemTitle || `문제 ${problemId}`;
+        const level = bj_level[solvedJson?.level] || 'Unrated';
+        const tier = SOLVED_AC_TIER[solvedJson?.level] || await parseBojTier(problemId);
 
         const { problem_description, problem_input, problem_output, samples } = description;
-        return { problemId, submissionId, title, level, code, problem_description, problem_input, problem_output, problem_tags, samples: samples || [] };
+        return { problemId, submissionId, title, level, tier, code, problem_description, problem_input, problem_output, problem_tags, samples: samples || [] };
       })
       .catch((err) => {
         console.log('error ocurred: ', err);

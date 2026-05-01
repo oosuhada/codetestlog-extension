@@ -96,6 +96,7 @@ const SolvedACCache = new TTLCacheStats('solvedac');
 async function updateProblemsFromStats(problem) {
   const data = {
     id: problem.problemId,
+    problemTitle: problem.problemTitle,
     problem_description: problem.problem_description,
     problem_input: problem.problem_input,
     problem_output: problem.problem_output,
