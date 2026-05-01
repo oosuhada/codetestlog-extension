@@ -18,6 +18,7 @@ var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   orgOption:    'ctl_org_option',
   userPrefix:   'ctl_user_prefix',
   saveExamples: 'ctl_save_examples',
+  sidePanelState: 'ctl_side_panel_state',
   theme:        'ctl_theme',
   language:     'ctl_language',
 };

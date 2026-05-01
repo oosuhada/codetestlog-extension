@@ -8,7 +8,10 @@
   "author": "flaxinger",
   "action": {
     "default_icon": "assets/thumbnail.png",
-    "default_popup": "popup.html"
+    "default_title": "CodeTestLog 열기"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
   },
   "icons": {
     "16": "assets/thumbnail.png",
@@ -30,6 +33,7 @@
   "permissions": [
     "unlimitedStorage",
     "storage",
+    "sidePanel",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess"
   ],

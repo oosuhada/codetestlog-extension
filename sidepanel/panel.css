@@ -1,0 +1,315 @@
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --correct: #3fb950;
+  --wrong: #f85149;
+  --timeout: #d29922;
+  --runtime: #a371f7;
+  --compile: #ff7b72;
+  --font: -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Segoe UI", sans-serif;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  min-width: 280px;
+  max-width: 400px;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+}
+
+.ctl-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.ctl-logo {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ctl-title {
+  flex: 1;
+  font-weight: 700;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.status-idle {
+  background: var(--border);
+}
+
+.status-committing {
+  animation: pulse 1s infinite;
+  background: var(--timeout);
+}
+
+.status-success {
+  background: var(--correct);
+}
+
+.status-error {
+  background: var(--wrong);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.panel-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  margin-bottom: 10px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.commit-card,
+.attempts-card {
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.commit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.commit-result-badge {
+  flex-shrink: 0;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.badge-correct {
+  background: var(--correct);
+  color: #000;
+}
+
+.badge-wrong {
+  background: var(--wrong);
+  color: #fff;
+}
+
+.badge-timeout,
+.badge-memory_exceeded {
+  background: var(--timeout);
+  color: #000;
+}
+
+.badge-runtime_error {
+  background: var(--runtime);
+  color: #fff;
+}
+
+.badge-compile_error {
+  background: var(--compile);
+  color: #000;
+}
+
+.badge-partial,
+.badge-run {
+  background: var(--accent);
+  color: #000;
+}
+
+.commit-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.commit-problem {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commit-state {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.commit-state-success {
+  color: var(--correct);
+}
+
+.commit-state-error {
+  color: var(--wrong);
+}
+
+.commit-filename,
+.commit-path {
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commit-time {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.attempts-card {
+  padding: 10px 12px;
+}
+
+.problem-title {
+  overflow: hidden;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attempts-grid,
+.today-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat-item {
+  min-width: 0;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 1px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.attempt-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 14px;
+  margin-top: 10px;
+}
+
+.timeline-dot {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  cursor: default;
+}
+
+.history-list {
+  list-style: none;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.history-item:last-child {
+  border-bottom: 0;
+}
+
+.history-badge {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.history-problem {
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-result {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.history-time {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.empty-state {
+  padding: 8px 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+}

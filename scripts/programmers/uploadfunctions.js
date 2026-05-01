@@ -99,6 +99,8 @@ async function uploadOneSolveProblemOnGit(bojData, resultType = CTL_RESULT.CORRE
   const ext = langToExt(lang) !== 'txt' ? langToExt(lang) : (bojData.language_extension || 'txt');
   const attemptCount = await incrementAttemptCount('programmers', problemId);
 
+  bojData.result = result;
+  bojData.attemptCount = attemptCount;
   bojData.directory = buildCommitPath('프로그래머스', level, problemId, title);
   bojData.fileName = buildFileName(result, title, ext);
   bojData.message = buildCommitMessage({
@@ -115,7 +117,6 @@ async function uploadOneSolveProblemOnGit(bojData, resultType = CTL_RESULT.CORRE
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
       console.error('GitHub 토큰이 만료되었거나 유효하지 않습니다.', e);
-      return;
     }
     throw e;
   }
