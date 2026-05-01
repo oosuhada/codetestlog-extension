@@ -53,20 +53,17 @@
         </div>
 
         <div class="quick-actions">
-          <a id="settings_URL" class="quick-action" href="" target="_blank">설정 페이지</a>
           <button id="open_side_panel" class="quick-action" type="button">사이드 패널</button>
+          <a id="settings_URL" class="quick-action" href="" target="_blank">설정 페이지</a>
           <a id="dashboard_URL" class="quick-action" href="" target="_blank">대시보드</a>
         </div>
         <span id="popup-status" class="status-text"></span>
 
-        <details id="addons-section" class="addons-section">
-          <summary class="addons-summary">
-            <span>추가 기능</span>
-            <span id="addons-summary-meta" class="addons-summary-meta">선택</span>
+        <details id="notion-section" class="settings-section optional-section">
+          <summary class="optional-summary">
+            <span>Notion 오답노트 <span class="badge-optional">선택</span></span>
           </summary>
-
-          <div id="notion-section" class="settings-section optional-section">
-            <h3>Notion 오답노트 <span class="badge-optional">선택</span></h3>
+          <div class="optional-content">
             <p class="settings-desc">오답 제출을 Notion DB에 함께 기록합니다.</p>
 
             <label for="notion-token">Integration Token</label>
@@ -82,9 +79,13 @@
             </div>
             <span id="notion-status" class="status-text"></span>
           </div>
+        </details>
 
-          <div id="ai-section" class="settings-section optional-section">
-            <h3>AI 피드백 <span class="badge-optional">선택</span></h3>
+        <details id="ai-section" class="settings-section optional-section">
+          <summary class="optional-summary">
+            <span>AI 피드백 <span class="badge-optional">선택</span></span>
+          </summary>
+          <div class="optional-content">
             <p class="settings-desc">오답/에러 제출 시 AI가 코드를 간단히 분석합니다.</p>
 
             <label for="ai-provider">AI 프로바이더</label>

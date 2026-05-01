@@ -64,30 +64,18 @@ function setNotionStatus(message) {
   document.getElementById('notion-status').textContent = message || '';
 }
 
-function setAddonsSummary(configuredNames = []) {
-  const meta = document.getElementById('addons-summary-meta');
-  if (!meta) return;
-  if (configuredNames.length === 0) {
-    meta.textContent = '선택';
-    meta.classList.remove('is-configured');
-    return;
-  }
-  meta.textContent = `${configuredNames.join(' · ')} 설정됨`;
-  meta.classList.add('is-configured');
-}
-
-function refreshAddonsSummary() {
+function refreshOptionalSectionState() {
   chrome.storage.local.get([...notionConfigKeys, ...aiConfigKeys], (result) => {
-    const configured = [];
     const hasNotion = Boolean(result[CTL_STORAGE_KEYS.notionToken] && result[CTL_STORAGE_KEYS.notionDbId]);
     const aiKeys = Array.isArray(result[CTL_STORAGE_KEYS.aiApiKeys])
       ? result[CTL_STORAGE_KEYS.aiApiKeys]
       : normalizeApiKeyLines(result[CTL_STORAGE_KEYS.aiApiKey]);
     const hasAi = Boolean(result[CTL_STORAGE_KEYS.aiProvider] && aiKeys.length > 0);
+    const notionSection = document.getElementById('notion-section');
+    const aiSection = document.getElementById('ai-section');
 
-    if (hasNotion) configured.push('Notion');
-    if (hasAi) configured.push('AI');
-    setAddonsSummary(configured);
+    notionSection.classList.toggle('is-configured', hasNotion);
+    aiSection.classList.toggle('is-configured', hasAi);
   });
 }
 
@@ -113,7 +101,7 @@ function loadNotionSettings() {
 function bindNotionSettingsHandlers() {
   document.getElementById('notion-save-btn').addEventListener('click', async () => {
     await saveNotionSettings();
-    refreshAddonsSummary();
+    refreshOptionalSectionState();
     setNotionStatus('저장됨');
   });
 
@@ -121,7 +109,7 @@ function bindNotionSettingsHandlers() {
     chrome.storage.local.remove(notionConfigKeys, () => {
       document.getElementById('notion-token').value = '';
       document.getElementById('notion-db-id').value = '';
-      refreshAddonsSummary();
+      refreshOptionalSectionState();
       setNotionStatus('초기화됨');
     });
   });
@@ -196,7 +184,7 @@ function bindAiSettingsHandlers() {
   document.getElementById('ai-save-btn').addEventListener('click', async () => {
     const { provider, apiKeys } = getAiInputValues();
     await saveAiSettings();
-    refreshAddonsSummary();
+    refreshOptionalSectionState();
     setAiStatus(provider && apiKeys.length ? `${apiKeys.length}개 키 저장됨` : 'AI 피드백 사용 안 함');
   });
 
@@ -205,7 +193,7 @@ function bindAiSettingsHandlers() {
       document.getElementById('ai-provider').value = '';
       document.getElementById('ai-api-keys').value = '';
       document.getElementById('ai-only-wrong').checked = true;
-      refreshAddonsSummary();
+      refreshOptionalSectionState();
       setAiStatus('초기화됨');
     });
   });
@@ -233,7 +221,7 @@ function bindAiSettingsHandlers() {
   await migrateLegacyStorageKeys();
   loadNotionSettings();
   loadAiSettings();
-  refreshAddonsSummary();
+  refreshOptionalSectionState();
   bindNotionSettingsHandlers();
   bindAiSettingsHandlers();
 
