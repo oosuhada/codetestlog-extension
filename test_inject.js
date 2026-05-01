@@ -1,1 +1,1 @@
-console.log('🚀 BaekjoonHub inject 성공!');
+console.log('CodeTestLog inject 성공!');

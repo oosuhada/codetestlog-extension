@@ -1,4 +1,21 @@
+// ─── CodeTestLog Storage Key Namespace ───────────────────────────────────────
+// P01 이후 모든 스토리지 키는 이 객체를 통해 사용한다.
+// 기존 BaekjoonHub 키는 P01에서 마이그레이션 예정.
+const CTL_STORAGE_KEYS = {
+  attemptCount: (site, problemId) => `ctl_attempt_${site}_${problemId}`,
+  githubToken:  'ctl_github_token',
+  githubRepo:   'ctl_github_repo',
+  notionToken:  'ctl_notion_token',   // P05에서 사용
+  notionDbId:   'ctl_notion_db_id',   // P05에서 사용
+  aiProvider:   'ctl_ai_provider',    // P07에서 사용
+  aiApiKey:     'ctl_ai_api_key',     // P07에서 사용
+  isEnabled:    'ctl_is_enabled',
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 /* Sync to local storage */
+// TODO(P01): migrate legacy BaekjoonHub_*, pipe_baekjoonhub, bjh*, stats,
+// and mode_type keys below to CTL_STORAGE_KEYS.
 chrome.storage.local.get('isSync', (data) => {
   keys = ['BaekjoonHub_token', 'BaekjoonHub_username', 'pipe_baekjoonhub', 'stats', 'BaekjoonHub_hook', 'mode_type'];
   if (!data || !data.isSync) {
@@ -9,13 +26,13 @@ chrome.storage.local.get('isSync', (data) => {
     });
     chrome.storage.local.set({ isSync: true }, (data) => {
       // if (debug)
-      console.log('BaekjoonHub Synced to local values');
+      console.log('CodeTestLog Synced to local values');
     });
   } else {
     // if (debug)
     // console.log('Upload Completed. Local Storage status:', data);
     // if (debug)
-    console.log('BaekjoonHub Local storage already synced!');
+    console.log('CodeTestLog Local storage already synced!');
   }
 });
 
