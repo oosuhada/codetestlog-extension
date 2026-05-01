@@ -163,3 +163,6 @@ YYYY-MM-DD HH:MM
 | `ctl_notion_db_id` | Notion DB ID (P05) |
 | `ctl_ai_provider` | AI 프로바이더 선택 (P07) |
 | `ctl_ai_api_key` | 사용자 AI API 키 (P07) |
+| `ctl_ai_api_keys` | 여러 AI API 키 목록 (P07, 순환 사용) |
+| `ctl_ai_only_wrong` | 오답/에러 제출만 AI 분석할지 여부 (P07) |
+| `ctl_ai_key_cursor` | 다음에 사용할 AI API 키 인덱스 (P07) |

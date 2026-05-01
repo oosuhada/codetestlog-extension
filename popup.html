@@ -45,7 +45,7 @@
           <p id="repo_url" class="ui small header" style="margin-top: 5px; margin-bottom: 6px !important"></p>
           <div class="ui small header" style="margin-bottom: 5px; margin-top: 0px !important">
             <span data-i18n="popup.wantMore">Want more features?</span>
-            <a style="color: rgb(10, 89, 92) !important" target="_blank" href="https://github.com/oosuhada/Algolog/issues" data-i18n="popup.requestFeature">Request a feature!</a>
+            <a style="color: var(--popup-accent) !important" target="_blank" href="https://github.com/oosuhada/Algolog/issues" data-i18n="popup.requestFeature">Request a feature!</a>
           </div>
         </div>
 
@@ -67,6 +67,39 @@
           <span id="notion-status" class="status-text"></span>
         </div>
 
+        <div id="ai-section" class="settings-section">
+          <h3>AI 피드백 <span class="badge-optional">선택</span></h3>
+          <p class="settings-desc">
+            오답/에러 제출 시 AI가 코드를 간단히 분석합니다.<br />
+            설정하지 않아도 GitHub 커밋은 정상 동작합니다.
+          </p>
+
+          <label for="ai-provider">AI 프로바이더</label>
+          <select id="ai-provider">
+            <option value="">사용 안 함</option>
+            <option value="groq">Groq (무료, Llama 3.1)</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic Claude</option>
+          </select>
+
+          <label for="ai-api-keys">API Keys</label>
+          <textarea id="ai-api-keys" rows="4" placeholder="API Key를 줄바꿈으로 입력" autocomplete="off"></textarea>
+          <p class="settings-hint">여러 키를 입력하면 요청마다 순환 사용합니다.</p>
+
+          <label class="checkbox-label" for="ai-only-wrong">
+            <input type="checkbox" id="ai-only-wrong" checked />
+            오답/에러일 때만 분석
+          </label>
+
+          <div class="button-row">
+            <button id="ai-save-btn" type="button">저장</button>
+            <button id="ai-test-btn" type="button">테스트</button>
+            <button id="ai-clear-btn" type="button" class="btn-danger">초기화</button>
+          </div>
+          <span id="ai-status" class="status-text"></span>
+        </div>
+
         <!-- 기능 on/off -->
         <div style="margin-top: 10px">
           <input type="checkbox" id="onffbox" />
@@ -80,7 +113,7 @@
       <div id="socials" class="sixteen wide column" style="position:relative;text-align:center;">
         <a title="Algolog GitHub" href="https://github.com/oosuhada/Algolog" target="_blank"><i class="ui black big github icon"></i></a>
         <a title="Algolog Setting" id="welcome_URL" href="" target="_blank"><i class="ui grey big cog icon"></i></a>
-        <button id="lang_toggle" style="position:absolute;right:0;top:50%;transform:translateY(-50%);padding:3px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;cursor:pointer;font-size:13px;line-height:1.4;">한국어</button>
+        <button id="lang_toggle" style="position:absolute;right:0;top:50%;transform:translateY(-50%);padding:3px 10px;border:1px solid var(--popup-border);border-radius:3px;background:var(--popup-surface-2);color:var(--popup-text);cursor:pointer;font-size:13px;line-height:1.4;">한국어</button>
       </div>
     </div>
 
