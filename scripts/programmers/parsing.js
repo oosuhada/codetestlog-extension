@@ -113,7 +113,7 @@ async function makeData(origin) {
     _defaultDir: `프로그래머스/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
   const levelWithLv = `${level}`.includes('lv') ? level : `lv${level}`.replace('lv', 'level ');
-  const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -BaekjoonHub`;
+  const message = `[${levelWithLv}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -CodeTestLog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   const readme =
@@ -288,7 +288,7 @@ async function makeDataForBulkUpload(origin) {
     _defaultDir: `프로그래머스/${level}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
   const levelWithLv = `${level}`.includes('lv') ? level : `lv${level}`.replace('lv', 'level ');
-  const message = `[${levelWithLv}] Title: ${title} -BaekjoonHub`;
+  const message = `[${levelWithLv}] Title: ${title} -CodeTestLog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${language_extension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   const readme =

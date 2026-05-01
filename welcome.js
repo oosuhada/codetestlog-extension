@@ -1,4 +1,4 @@
-const REPO_DESCRIPTION = 'This is an auto push repository for Baekjoon Online Judge created with [BaekjoonHub](https://github.com/BaekjoonHub/BaekjoonHub).';
+const REPO_DESCRIPTION = 'This is an auto push repository for coding test submissions created with [CodeTestLog](https://github.com/oosuhada/code-test-log).';
 
 const $ = (sel) => document.querySelector(sel);
 const $id = (id) => document.getElementById(id);
@@ -153,7 +153,7 @@ const initializeEmptyRepoWelcome = async (token, hook, branch) => {
   const repoName = hook.split('/')[1];
   const readmeContent = btoa(unescape(encodeURIComponent(`# ${repoName}\n${REPO_DESCRIPTION}\n`)));
   const res = await fetch(`https://api.github.com/repos/${hook}/contents/README.md`, {
-    method: 'PUT', headers, body: JSON.stringify({ message: 'Initial commit - BaekjoonHub', content: readmeContent, branch }),
+    method: 'PUT', headers, body: JSON.stringify({ message: 'Initial commit - CodeTestLog', content: readmeContent, branch }),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -175,7 +175,7 @@ const linkRepo = (token, name) => {
       if (xhr.status === 200) {
         if (!bool) {
           chrome.storage.local.set({ mode_type: 'hook' }, () => {
-            console.log(`Error linking ${name} to BaekjoonHub`);
+            console.log(`Error linking ${name} to CodeTestLog`);
           });
           chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
             console.log('Defaulted repo hook to NONE');

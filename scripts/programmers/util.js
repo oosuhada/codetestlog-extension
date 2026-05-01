@@ -79,7 +79,7 @@ function getDateString(date){
 
 /**
  * 풀이 목록 페이지에 "전체제출 업로드" 버튼을 삽입합니다.
- * "즐겨찾기한 문제" 버튼 옆에 동일한 스타일(div.bookmark)로 백준허브 아이콘과 함께 삽입합니다.
+ * "즐겨찾기한 문제" 버튼 옆에 동일한 스타일(div.bookmark)로 CodeTestLog 아이콘과 함께 삽입합니다.
  */
 function insertUploadAllButton() {
   const bookmarkBtn = document.querySelector('div.total div.bookmark');
