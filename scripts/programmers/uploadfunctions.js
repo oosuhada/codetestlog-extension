@@ -1,64 +1,117 @@
+/*
+ * [CTL Analysis - P01]
+ * 제출 감지 방식: programmers.js에서 결과가 준비된 뒤 uploadOneSolveProblemOnGit()으로 들어온다.
+ * 결과 판별 위치: programmers.js의 normalizeProgrammersResult() 호출 결과를 CTL_RESULT 문자열로 전달받는다.
+ * 정답/오답 분기: 기존 isPassed boolean 분기 대신 CTL_RESULT별 파일명/커밋 메시지를 생성한다.
+ *
+ * 발견한 버그:
+ *   - BUG-1: 정답/오답/코드실행별 타임스탬프 파일명 생성 코드가 중복되어 결과 타입 확장이 어렵다.
+ *   - BUG-2: 시도 횟수 저장이 없어 1번째/2번째/3번째 시도 추적이 불가능하다.
+ *
+ * 기존 스토리지 키 목록: (마이그레이션 대상)
+ *   - 'BaekjoonHub_token' → ctl_github_token
+ *   - 'BaekjoonHub_hook' → ctl_github_repo
+ *   - 'stats' → ctl_stats
+ *   - 'ctl_attempt_programmers_{id}' 신규 사용
+ */
+
+/**
+ * 시도 횟수 1 증가 후 반환
+ * @returns {Promise<number>} 이번이 몇 번째 시도인지
+ */
+async function incrementAttemptCount(site, problemId) {
+  const key = CTL_STORAGE_KEYS.attemptCount(site, problemId || 'unknown');
+  return new Promise((resolve) => {
+    chrome.storage.local.get([key], (result) => {
+      const next = (result[key] || 0) + 1;
+      chrome.storage.local.set({ [key]: next }, () => resolve(next));
+    });
+  });
+}
+
+/**
+ * 현재 시도 횟수 조회 (증가 없이)
+ */
+async function getAttemptCount(site, problemId) {
+  const key = CTL_STORAGE_KEYS.attemptCount(site, problemId || 'unknown');
+  return new Promise((resolve) => {
+    chrome.storage.local.get([key], (result) => resolve(result[key] || 0));
+  });
+}
+
+/**
+ * CodeTestLog 규칙 파일명 생성
+ * 반환 예: "20260501_143022_correct_기능개발.py"
+ */
+function buildFileName(result, title, ext) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const ts = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`
+    + `_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const safeTitle = `${title || 'unknown'}`.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_');
+  return `${ts}_${result}_${safeTitle}.${ext || 'txt'}`;
+}
+
+/**
+ * GitHub 커밋 경로 생성
+ * 반환 예: "프로그래머스/lv2/42586. 기능개발"
+ */
+function buildCommitPath(site, level, problemId, title) {
+  const safeLevel = level || 'lv?';
+  const safeProblemId = problemId || 'unknown';
+  const safeTitle = `${title || 'unknown'}`.replace(/[\\/:*?"<>|]/g, '').trim() || 'unknown';
+  return `${site}/${safeLevel}/${safeProblemId}. ${safeTitle}`;
+}
+
+/**
+ * 커밋 메시지 생성
+ * 반환 예: "[CTL] correct | 프로그래머스 | lv2 | 기능개발 | Python | 3번째 시도"
+ */
+function buildCommitMessage({ result, site, level, title, lang, attemptCount }) {
+  return `[CTL] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
+}
+
 /** 푼 문제들에 대한 단일 업로드는 uploadGit 함수로 합니다.
  * 파라미터는 아래와 같습니다.
  * @param {object} bojData - 파싱된 문제 데이터
- * @param {boolean} isPassed - 정답 여부 (true: 정답 ✅, false: 오답 ❌)
+ * @param {string|boolean|null} resultType - CTL_RESULT 또는 기존 boolean 값
  * @param {function} cb - 콜백 함수 (ex. 업로드 후 로딩 아이콘 처리 등)
  * @returns {Promise<void>}
  */
-async function uploadOneSolveProblemOnGit(bojData, isPassed = true, cb) {
+async function uploadOneSolveProblemOnGit(bojData, resultType = CTL_RESULT.CORRECT, cb) {
   const token = await getToken();
   const hook = await getHook();
   if (isNull(token) || isNull(hook)) {
-    console.error('token or hook is null', token, hook);
-    return;
+    throw new Error('GitHub token or repository hook is missing.');
   }
 
-  // 커밋 메시지 및 파일명 분기
-  // isPassed: true=정답, false=오답, null=코드 실행
-  if (isPassed === true) {
-    const now = new Date();
-    const datetime = now.getFullYear().toString() +
-      String(now.getMonth() + 1).padStart(2, '0') +
-      String(now.getDate()).padStart(2, '0') + '_' +
-      String(now.getHours()).padStart(2, '0') +
-      String(now.getMinutes()).padStart(2, '0') +
-      String(now.getSeconds()).padStart(2, '0');
-    const dotIndex = bojData.fileName.lastIndexOf('.');
-    const name = bojData.fileName.substring(0, dotIndex);
-    const ext = bojData.fileName.substring(dotIndex);
-    bojData.fileName = `${datetime}_correct_${name}${ext}`;
-    bojData.message = `✅ 정답: ${bojData.message}`;
-  } else if (isPassed === false) {
-    const now = new Date();
-    const datetime = now.getFullYear().toString() +
-      String(now.getMonth() + 1).padStart(2, '0') +
-      String(now.getDate()).padStart(2, '0') + '_' +
-      String(now.getHours()).padStart(2, '0') +
-      String(now.getMinutes()).padStart(2, '0') +
-      String(now.getSeconds()).padStart(2, '0');
-    const dotIndex = bojData.fileName.lastIndexOf('.');
-    const name = bojData.fileName.substring(0, dotIndex);
-    const ext = bojData.fileName.substring(dotIndex);
-    bojData.fileName = `${datetime}_wrong_${name}${ext}`;
-    bojData.message = `❌ 오답: ${bojData.message}`;
-  } else {
-    // 코드 실행 (isPassed === null)
-    const now = new Date();
-    const datetime = now.getFullYear().toString() +
-      String(now.getMonth() + 1).padStart(2, '0') +
-      String(now.getDate()).padStart(2, '0') + '_' +
-      String(now.getHours()).padStart(2, '0') +
-      String(now.getMinutes()).padStart(2, '0') +
-      String(now.getSeconds()).padStart(2, '0');
-    const dotIndex = bojData.fileName.lastIndexOf('.');
-    const name = bojData.fileName.substring(0, dotIndex);
-    const ext = bojData.fileName.substring(dotIndex);
-    bojData.fileName = `${datetime}_run_${name}${ext}`;
-    bojData.message = `▶️ 코드 실행: ${bojData.message}`;
-  }
+  const result = resultType === true
+    ? CTL_RESULT.CORRECT
+    : resultType === false
+      ? CTL_RESULT.WRONG
+      : resultType === null
+        ? CTL_RESULT.RUN
+        : (normalizeProgrammersResult(resultType, true) || CTL_RESULT.WRONG);
+  const level = bojData.level || parseProgrammersLevel();
+  const title = bojData.title || parseProgrammersTitle();
+  const problemId = bojData.problemId || parseProgrammersProblemId();
+  const lang = bojData.language || parseProgrammersLanguage();
+  const ext = langToExt(lang) !== 'txt' ? langToExt(lang) : (bojData.language_extension || 'txt');
+  const attemptCount = await incrementAttemptCount('programmers', problemId);
+
+  bojData.directory = buildCommitPath('프로그래머스', level, problemId, title);
+  bojData.fileName = buildFileName(result, title, ext);
+  bojData.message = buildCommitMessage({
+    result,
+    site: '프로그래머스',
+    level,
+    title,
+    lang,
+    attemptCount,
+  });
 
   try {
-    return await upload(token, hook, bojData, isPassed, cb);
+    return await upload(token, hook, bojData, isCorrectResult(result), cb);
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
       console.error('GitHub 토큰이 만료되었거나 유효하지 않습니다.', e);

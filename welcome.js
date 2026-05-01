@@ -2,6 +2,7 @@ const REPO_DESCRIPTION = 'This is an auto push repository for coding test submis
 
 const $ = (sel) => document.querySelector(sel);
 const $id = (id) => document.getElementById(id);
+const ctlStorageReady = migrateLegacyStorageKeys();
 
 const option = () => $id('type').value;
 
@@ -74,7 +75,7 @@ const statusCode = (res, status, name) => {
       errorEl.hidden = false;
       break;
     default:
-      chrome.storage.local.set({ mode_type: 'commit' }, () => {
+      chrome.storage.local.set({ [CTL_STORAGE_KEYS.modeType]: 'commit' }, () => {
         errorEl.hidden = true;
         I18N.bind(successEl, 'welcome.success.created', { url: res.html_url, name });
         successEl.hidden = false;
@@ -82,7 +83,7 @@ const statusCode = (res, status, name) => {
         $id('hook_mode').classList.add('hidden');
         $id('commit_mode').classList.remove('hidden');
       });
-      chrome.storage.local.set({ BaekjoonHub_hook: res.full_name }, () => {
+      chrome.storage.local.set({ [CTL_STORAGE_KEYS.githubRepo]: res.full_name }, () => {
         console.log('Successfully set new repo hook');
       });
       break;
@@ -105,10 +106,10 @@ const createRepo = (token, name) => {
     }
   });
 
-  stats = {};
+  const stats = {};
   stats.version = chrome.runtime.getManifest().version;
   stats.submission = {};
-  chrome.storage.local.set({ stats });
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.stats]: stats });
 
   xhr.open('POST', AUTHENTICATION_URL, true);
   xhr.setRequestHeader('Authorization', `token ${token}`);
@@ -174,10 +175,10 @@ const linkRepo = (token, name) => {
       const bool = linkStatusCode(xhr.status, name);
       if (xhr.status === 200) {
         if (!bool) {
-          chrome.storage.local.set({ mode_type: 'hook' }, () => {
+          chrome.storage.local.set({ [CTL_STORAGE_KEYS.modeType]: 'hook' }, () => {
             console.log(`Error linking ${name} to CodeTestLog`);
           });
-          chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
+          chrome.storage.local.set({ [CTL_STORAGE_KEYS.githubRepo]: null }, () => {
             console.log('Defaulted repo hook to NONE');
           });
           $id('hook_mode').classList.remove('hidden');
@@ -192,22 +193,22 @@ const linkRepo = (token, name) => {
             }
           }
 
-          chrome.storage.local.set({ mode_type: 'commit', repo: res.html_url }, () => {
+          chrome.storage.local.set({ [CTL_STORAGE_KEYS.modeType]: 'commit', [CTL_STORAGE_KEYS.githubRepoUrl]: res.html_url }, () => {
             errorEl.hidden = true;
             I18N.bind(successEl, 'welcome.success.linked', { url: res.html_url, name });
             successEl.hidden = false;
             unlinkEl.hidden = false;
           });
 
-          stats = {};
+          const stats = {};
           stats.version = chrome.runtime.getManifest().version;
           stats.submission = {};
-          chrome.storage.local.set({ stats });
+          chrome.storage.local.set({ [CTL_STORAGE_KEYS.stats]: stats });
 
-          chrome.storage.local.set({ BaekjoonHub_hook: res.full_name }, () => {
+          chrome.storage.local.set({ [CTL_STORAGE_KEYS.githubRepo]: res.full_name }, () => {
             console.log('Successfully set new repo hook');
-            chrome.storage.local.get('stats', (psolved) => {
-              const { stats } = psolved;
+            chrome.storage.local.get(CTL_STORAGE_KEYS.stats, (psolved) => {
+              const stats = psolved[CTL_STORAGE_KEYS.stats];
             });
           });
           $id('hook_mode').classList.add('hidden');
@@ -224,16 +225,16 @@ const linkRepo = (token, name) => {
 };
 
 const unlinkRepo = () => {
-  chrome.storage.local.set({ mode_type: 'hook' }, () => {
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.modeType]: 'hook' }, () => {
     console.log('Unlinking repo');
   });
-  chrome.storage.local.set({ BaekjoonHub_hook: null }, () => {
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.githubRepo]: null }, () => {
     console.log('Defaulted repo hook to NONE');
   });
-  chrome.storage.local.set({ BaekjoonHub_disOption: 'platform' }, () => {
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.orgOption]: 'platform' }, () => {
     console.log('DisOption Reset');
   });
-  chrome.storage.local.remove('BaekjoonHub_userPrefix', () => {
+  chrome.storage.local.remove(CTL_STORAGE_KEYS.userPrefix, () => {
     console.log('User prefix cleared');
   });
   $id('hook_mode').classList.remove('hidden');
@@ -254,8 +255,8 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
-  chrome.storage.local.get('bjh_theme', (data) => {
-    let theme = data.bjh_theme;
+  chrome.storage.local.get(CTL_STORAGE_KEYS.theme, (data) => {
+    let theme = data[CTL_STORAGE_KEYS.theme];
     if (!theme) {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
@@ -267,7 +268,7 @@ $id('theme_toggle').addEventListener('click', () => {
   const isDark = document.documentElement.classList.contains('dark');
   const newTheme = isDark ? 'light' : 'dark';
   applyTheme(newTheme);
-  chrome.storage.local.set({ bjh_theme: newTheme });
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.theme]: newTheme });
 });
 
 /* --- Event listeners --- */
@@ -291,8 +292,8 @@ $id('hook_button').addEventListener('click', () => {
     I18N.bind(successEl, 'welcome.attempting', null, 'text');
     successEl.hidden = false;
 
-    chrome.storage.local.get('BaekjoonHub_token', (data) => {
-      const token = data.BaekjoonHub_token;
+    chrome.storage.local.get(CTL_STORAGE_KEYS.githubToken, (data) => {
+      const token = data[CTL_STORAGE_KEYS.githubToken];
       if (token === null || token === undefined) {
         I18N.bind(errorEl, 'welcome.error.auth', null, 'text');
         errorEl.hidden = false;
@@ -300,8 +301,8 @@ $id('hook_button').addEventListener('click', () => {
       } else if (option() === 'new') {
         createRepo(token, repositoryName());
       } else {
-        chrome.storage.local.get('BaekjoonHub_username', (data2) => {
-          const username = data2.BaekjoonHub_username;
+        chrome.storage.local.get(CTL_STORAGE_KEYS.githubUsername, (data2) => {
+          const username = data2[CTL_STORAGE_KEYS.githubUsername];
           if (!username) {
             I18N.bind(errorEl, 'welcome.error.improperAuth', null, 'text');
             errorEl.hidden = false;
@@ -318,13 +319,13 @@ $id('hook_button').addEventListener('click', () => {
   }
 
   const org_option = $id('org_option').value;
-  chrome.storage.local.set({ BaekjoonHub_OrgOption: org_option }, () => {
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.orgOption]: org_option }, () => {
     console.log(`Set Organize by ${org_option}`);
   });
 
   // 입력값에서 prefix 파싱 후 저장
   const { prefix: userPrefix } = parseRepoInput($id('name').value.trim());
-  chrome.storage.local.set({ BaekjoonHub_userPrefix: userPrefix }, () => {
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.userPrefix]: userPrefix }, () => {
     console.log(`Set user prefix: "${userPrefix}"`);
   });
 });
@@ -344,8 +345,8 @@ $id('unlink').querySelector('a').addEventListener('click', () => {
 
 $id('token_refresh_button').addEventListener('click', () => {
   const tokenStatusEl = $id('token_status');
-  chrome.storage.local.get('BaekjoonHub_token', (data) => {
-    const token = data.BaekjoonHub_token;
+  chrome.storage.local.get(CTL_STORAGE_KEYS.githubToken, (data) => {
+    const token = data[CTL_STORAGE_KEYS.githubToken];
     if (!token) {
       I18N.bind(tokenStatusEl, 'welcome.tokenStatus.notFound', null, 'text');
       tokenStatusEl.className = 'token-status status-err';
@@ -374,11 +375,11 @@ $id('token_refresh_button').addEventListener('click', () => {
 });
 
 /* Save examples toggle */
-chrome.storage.local.get('bjhSaveExamples', (data) => {
-  $id('examplesBox').checked = data.bjhSaveExamples === true;
+chrome.storage.local.get(CTL_STORAGE_KEYS.saveExamples, (data) => {
+  $id('examplesBox').checked = data[CTL_STORAGE_KEYS.saveExamples] === true;
 });
 $id('examplesBox').addEventListener('click', () => {
-  chrome.storage.local.set({ bjhSaveExamples: $id('examplesBox').checked });
+  chrome.storage.local.set({ [CTL_STORAGE_KEYS.saveExamples]: $id('examplesBox').checked });
 });
 
 /* === Directory Template Settings === */
@@ -412,7 +413,7 @@ function updateTemplatePreview(platform) {
 
 function loadTemplateSettings() {
   TEMPLATE_PLATFORMS.forEach((platform) => {
-    const key = `BaekjoonHub_dirTemplate_${platform}`;
+    const key = CTL_STORAGE_KEYS.dirTemplate(platform);
     chrome.storage.local.get(key, (data) => {
       const input = $id(`tmpl_${platform}`);
       if (input && data[key]) {
@@ -427,7 +428,7 @@ function saveTemplateSettings() {
   TEMPLATE_PLATFORMS.forEach((platform) => {
     const input = $id(`tmpl_${platform}`);
     if (!input) return;
-    const key = `BaekjoonHub_dirTemplate_${platform}`;
+    const key = CTL_STORAGE_KEYS.dirTemplate(platform);
     const value = input.value.trim();
     if (value) {
       chrome.storage.local.set({ [key]: value });
@@ -441,7 +442,7 @@ function resetTemplateSettings() {
   TEMPLATE_PLATFORMS.forEach((platform) => {
     const input = $id(`tmpl_${platform}`);
     if (input) input.value = '';
-    const key = `BaekjoonHub_dirTemplate_${platform}`;
+    const key = CTL_STORAGE_KEYS.dirTemplate(platform);
     chrome.storage.local.remove(key);
     updateTemplatePreview(platform);
   });
@@ -467,17 +468,18 @@ $id('tmpl_reset').addEventListener('click', () => {
 });
 
 /* Initialize i18n, theme, and detect mode type */
-I18N.init(() => {
+I18N.init(async () => {
+  await ctlStorageReady;
   initTheme();
 
-  chrome.storage.local.get('mode_type', (data) => {
-    const mode = data.mode_type;
+  chrome.storage.local.get(CTL_STORAGE_KEYS.modeType, (data) => {
+    const mode = data[CTL_STORAGE_KEYS.modeType];
     const errorEl = $id('error');
     const successEl = $id('success');
 
     if (mode && mode === 'commit') {
-      chrome.storage.local.get('BaekjoonHub_token', (data2) => {
-        const token = data2.BaekjoonHub_token;
+      chrome.storage.local.get(CTL_STORAGE_KEYS.githubToken, (data2) => {
+        const token = data2[CTL_STORAGE_KEYS.githubToken];
         if (token === null || token === undefined) {
           I18N.bind(errorEl, 'welcome.error.authTopRight', null, 'text');
           errorEl.hidden = false;
@@ -485,8 +487,8 @@ I18N.init(() => {
           $id('hook_mode').classList.remove('hidden');
           $id('commit_mode').classList.add('hidden');
         } else {
-          chrome.storage.local.get('BaekjoonHub_hook', (repoName) => {
-            const hook = repoName.BaekjoonHub_hook;
+          chrome.storage.local.get(CTL_STORAGE_KEYS.githubRepo, (repoName) => {
+            const hook = repoName[CTL_STORAGE_KEYS.githubRepo];
             if (!hook) {
               I18N.bind(errorEl, 'welcome.error.improperAuthTopRight', null, 'text');
               errorEl.hidden = false;

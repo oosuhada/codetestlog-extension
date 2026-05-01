@@ -1,3 +1,5 @@
+importScripts('ctl_storage_keys.js');
+
 /**
  * solvedac 문제 데이터를 파싱해오는 함수.
  * @param {int} problemId
@@ -8,23 +10,25 @@ async function SolvedApiCall(problemId) {
 }
 
 function handleMessage(request, sender, sendResponse) {
+  migrateLegacyStorageKeys();
+
   if (request && request.closeWebPage === true && request.isSuccess === true) {
     /* Set username */
     chrome.storage.local.set(
-      { BaekjoonHub_username: request.username } /* , () => {
-      window.localStorage.BaekjoonHub_username = request.username;
+      { [CTL_STORAGE_KEYS.githubUsername]: request.username } /* , () => {
+      window.localStorage.ctl_github_username = request.username;
     } */,
     );
 
     /* Set token */
     chrome.storage.local.set(
-      { BaekjoonHub_token: request.token } /* , () => {
+      { [CTL_STORAGE_KEYS.githubToken]: request.token } /* , () => {
       window.localStorage[request.KEY] = request.token;
     } */,
     );
 
     /* Close pipe */
-    chrome.storage.local.set({ pipe_BaekjoonHub: false }, () => {
+    chrome.storage.local.set({ [CTL_STORAGE_KEYS.oauthPipe]: false }, () => {
       console.log('Closed pipe.');
     });
 
