@@ -1,4 +1,5 @@
 importScripts('ctl_storage_keys.js');
+importScripts('core/notion_client.js');
 
 const CTL_PANEL_STATE_KEY = CTL_STORAGE_KEYS.sidePanelState || 'ctl_side_panel_state';
 const CTL_PANEL_HISTORY_LIMIT = 5;
@@ -225,10 +226,56 @@ async function SolvedApiCall(problemId) {
     .then((query) => query.json());
 }
 
+async function buildGithubFileUrl(commitPath, fileName) {
+  const data = await chromeStorageGet([CTL_STORAGE_KEYS.githubRepo, CTL_STORAGE_KEYS.stats]);
+  const repo = data[CTL_STORAGE_KEYS.githubRepo];
+  if (!repo || !commitPath || !fileName) return '';
+
+  const stats = data[CTL_STORAGE_KEYS.stats] || {};
+  const branch = stats.branches?.[repo] || 'main';
+  const encodedBranch = `${branch}`.split('/').map(encodeURIComponent).join('/');
+  const path = encodeURIComponent(`${commitPath}/${fileName}`).replace(/%2F/g, '/');
+  return `https://github.com/${repo}/blob/${encodedBranch}/${path}`;
+}
+
+function shouldCreateNotionEntry(payload = {}) {
+  return payload.success === true && (payload.phase === 'complete' || !payload.phase);
+}
+
+async function recordSuccessfulCommitToNotion(payload = {}) {
+  if (!shouldCreateNotionEntry(payload)) return { skipped: true };
+
+  const githubUrl = await buildGithubFileUrl(payload.commitPath, payload.fileName);
+  return createNotionEntry({
+    title: payload.problemName,
+    site: payload.site,
+    level: payload.level || '',
+    result: payload.result,
+    language: payload.language || '',
+    attemptCount: payload.attemptCount || 1,
+    submittedAt: new Date(payload.timestamp || Date.now()).toISOString(),
+    githubUrl,
+    code: payload.code || '',
+  });
+}
+
 function handleMessage(request, sender, sendResponse) {
   migrateLegacyStorageKeys();
 
+  if (request && request.type === 'CTL_NOTION_TEST') {
+    testNotionConnection()
+      .then((response) => sendResponse(response))
+      .catch((error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
   if (request && (request.type === 'CTL_COMMIT_EVENT' || request.type === 'CTL_PROBLEM_CONTEXT')) {
+    if (request.type === 'CTL_COMMIT_EVENT') {
+      recordSuccessfulCommitToNotion(request.payload).catch((error) => {
+        console.error('[CTL] Notion optional flow failed:', error);
+      });
+    }
+
     updatePanelStateFromMessage(request)
       .then((response) => sendResponse(response))
       .catch((error) => {

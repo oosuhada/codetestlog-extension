@@ -1,9 +1,10 @@
-/* global oAuth2, I18N */
+/* global oAuth2, I18N, CTL_STORAGE_KEYS */
 /* eslint no-undef: "error" */
 
 I18N.init();
 
 let action = false;
+const notionConfigKeys = [CTL_STORAGE_KEYS.notionToken, CTL_STORAGE_KEYS.notionDbId];
 
 $('#authenticate').on('click', () => {
   if (action) {
@@ -15,8 +16,67 @@ $('#authenticate').on('click', () => {
 $('#welcome_URL').attr('href', `chrome-extension://${chrome.runtime.id}/welcome.html`);
 $('#hook_URL').attr('href', `chrome-extension://${chrome.runtime.id}/welcome.html`);
 
+function getNotionInputValues() {
+  return {
+    token: document.getElementById('notion-token').value.trim(),
+    dbId: document.getElementById('notion-db-id').value.trim(),
+  };
+}
+
+function setNotionStatus(message) {
+  document.getElementById('notion-status').textContent = message || '';
+}
+
+function saveNotionSettings() {
+  const { token, dbId } = getNotionInputValues();
+  return new Promise((resolve) => {
+    chrome.storage.local.set({
+      [CTL_STORAGE_KEYS.notionToken]: token,
+      [CTL_STORAGE_KEYS.notionDbId]: dbId,
+    }, resolve);
+  });
+}
+
+function loadNotionSettings() {
+  chrome.storage.local.get(notionConfigKeys, (result) => {
+    const token = result[CTL_STORAGE_KEYS.notionToken];
+    const dbId = result[CTL_STORAGE_KEYS.notionDbId];
+    if (token) document.getElementById('notion-token').value = token;
+    if (dbId) document.getElementById('notion-db-id').value = dbId;
+  });
+}
+
+function bindNotionSettingsHandlers() {
+  document.getElementById('notion-save-btn').addEventListener('click', async () => {
+    await saveNotionSettings();
+    setNotionStatus('저장됨');
+  });
+
+  document.getElementById('notion-clear-btn').addEventListener('click', () => {
+    chrome.storage.local.remove(notionConfigKeys, () => {
+      document.getElementById('notion-token').value = '';
+      document.getElementById('notion-db-id').value = '';
+      setNotionStatus('초기화됨');
+    });
+  });
+
+  document.getElementById('notion-test-btn').addEventListener('click', async () => {
+    setNotionStatus('테스트 중...');
+    await saveNotionSettings();
+    chrome.runtime.sendMessage({ type: 'CTL_NOTION_TEST' }, (res) => {
+      if (chrome.runtime.lastError) {
+        setNotionStatus(`실패: ${chrome.runtime.lastError.message}`);
+        return;
+      }
+      setNotionStatus(res && res.success ? '연결 성공' : `실패: ${res?.error || '알 수 없는 오류'}`);
+    });
+  });
+}
+
 (async () => {
   await migrateLegacyStorageKeys();
+  loadNotionSettings();
+  bindNotionSettingsHandlers();
 
   chrome.storage.local.get(CTL_STORAGE_KEYS.githubToken, (data) => {
     const token = data[CTL_STORAGE_KEYS.githubToken];
