@@ -31,7 +31,7 @@ mkdir -p scripts/core
 // scripts/core/site_adapter.js
 
 /**
- * CodeTestLog 사이트 어댑터 레지스트리
+ * Algolog 사이트 어댑터 레지스트리
  *
  * 새 사이트 추가 방법:
  * 1. scripts/{사이트명}/adapter.js 생성
@@ -60,7 +60,7 @@ const SiteAdapterRegistry = (() => {
      */
     register(siteKey, adapter) {
       _adapters[siteKey] = adapter;
-      console.log(`[CTL] Adapter registered: ${siteKey}`);
+      console.log(`[ALG] Adapter registered: ${siteKey}`);
     },
     getAll() { return Object.entries(_adapters); },
     getActive() {
@@ -85,7 +85,7 @@ async function handleSubmission(submission) {
   const { problemId, title, level, result, code, language, siteLabel, siteKey } = submission;
 
   if (!SubmissionState.canCommit()) {
-    console.warn('[CTL] 쿨다운 중 스킵:', siteKey, problemId);
+    console.warn('[ALG] 쿨다운 중 스킵:', siteKey, problemId);
     return;
   }
 
@@ -95,16 +95,16 @@ async function handleSubmission(submission) {
   const commitPath   = buildCommitPath(siteLabel, level, problemId, title);
   const commitMsg    = buildCommitMessage({ result, site: siteLabel, level, title, lang: language, attemptCount });
 
-  console.log(`[CTL] 커밋 시작: ${commitPath}/${fileName}`);
+  console.log(`[ALG] 커밋 시작: ${commitPath}/${fileName}`);
   SubmissionState.markCommitStart();
 
   let success = false;
   try {
     await uploadToGitHub(commitPath, fileName, code, commitMsg);
     success = true;
-    console.log(`[CTL] 커밋 완료: ${commitPath}/${fileName}`);
+    console.log(`[ALG] 커밋 완료: ${commitPath}/${fileName}`);
   } catch (err) {
-    console.error('[CTL] 커밋 실패:', err);
+    console.error('[ALG] 커밋 실패:', err);
   } finally {
     SubmissionState.markCommitEnd();
   }

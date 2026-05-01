@@ -30,7 +30,7 @@ function buildCommitPath(site, level, problemId, title) {
 }
 
 function buildCommitMessage({ result, site, level, title, lang, attemptCount }) {
-  return `[CTL] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
+  return `[ALG] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
 }
 
 async function incrementAttemptCount(site, problemId) {
@@ -66,7 +66,7 @@ async function uploadOneSolveProblemOnGit(bojData, cb) {
     if (e.name === 'TokenExpiredError') {
       console.error('GitHub 토큰이 만료되었거나 유효하지 않습니다.', e);
       if (typeof Toast !== 'undefined') {
-        Toast.raiseToast('GitHub 토큰이 만료되었습니다. CodeTestLog 설정에서 토큰을 새로고침해주세요.');
+        Toast.raiseToast('GitHub 토큰이 만료되었습니다. Algolog 설정에서 토큰을 새로고침해주세요.');
       }
     }
     throw e;
@@ -140,7 +140,7 @@ async function uploadAllSolvedProblem() {
     // 5. 단일 커밋으로 일괄 업로드
     if (tree_items.length !== 0) {
       const treeData = await git.createTree(refSHA, tree_items);
-      const commitSHA = await git.createCommit('전체 코드 업로드 -CodeTestLog', treeData.sha, refSHA);
+      const commitSHA = await git.createCommit('전체 코드 업로드 -Algolog', treeData.sha, refSHA);
       await git.updateHead(ref, commitSHA);
       MultiloaderSuccess();
       treeData.tree.forEach((item) => {
@@ -228,7 +228,7 @@ async function uploadExamplesFromProblemPage(samples) {
     language: '',
     _defaultDir: `백준/${level.replace(/ .*/, '')}/${problemId}. ${convertSingleCharToDoubleChar(title)}`,
   });
-  const commitMessage = `[${level}] Title: ${title} - 예제 입출력 -CodeTestLog`;
+  const commitMessage = `[${level}] Title: ${title} - 예제 입출력 -Algolog`;
 
   const git = new GitHub(hook, token);
   const stats = await getStats();

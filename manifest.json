@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "CodeTestLog",
-  "short_name": "CTL",
-  "description": "코딩테스트 모든 제출 시도를 GitHub에 자동 커밋. 몇 번째 시도에 정답을 맞췄는지 Side Panel에서 바로 확인.",
-  "homepage_url": "https://github.com/BaekjoonHub/BaekjoonHub",
+  "name": "Algolog",
+  "short_name": "ALG",
+  "description": "코딩테스트 모든 제출 시도를 GitHub에 자동 커밋하고 성장 기록을 시각화하는 개인 학습 플랫폼.",
+  "homepage_url": "https://github.com/oosuhada/Algolog",
   "version": "2.0.0",
-  "author": "flaxinger",
+  "author": "oosuhada",
   "action": {
     "default_icon": "assets/thumbnail.png",
-    "default_title": "CodeTestLog 열기"
+    "default_title": "Algolog 열기"
   },
   "side_panel": {
     "default_path": "sidepanel/index.html"

@@ -1,4 +1,4 @@
-const REPO_DESCRIPTION = 'This is an auto push repository for coding test submissions created with [CodeTestLog](https://github.com/oosuhada/code-test-log).';
+const REPO_DESCRIPTION = 'This is an auto push repository for coding test submissions created with [Algolog](https://github.com/oosuhada/Algolog).';
 
 const $ = (sel) => document.querySelector(sel);
 const $id = (id) => document.getElementById(id);
@@ -154,7 +154,7 @@ const initializeEmptyRepoWelcome = async (token, hook, branch) => {
   const repoName = hook.split('/')[1];
   const readmeContent = btoa(unescape(encodeURIComponent(`# ${repoName}\n${REPO_DESCRIPTION}\n`)));
   const res = await fetch(`https://api.github.com/repos/${hook}/contents/README.md`, {
-    method: 'PUT', headers, body: JSON.stringify({ message: 'Initial commit - CodeTestLog', content: readmeContent, branch }),
+    method: 'PUT', headers, body: JSON.stringify({ message: 'Initial commit - Algolog', content: readmeContent, branch }),
   });
   if (!res.ok) {
     const err = await res.json();
@@ -176,7 +176,7 @@ const linkRepo = (token, name) => {
       if (xhr.status === 200) {
         if (!bool) {
           chrome.storage.local.set({ [CTL_STORAGE_KEYS.modeType]: 'hook' }, () => {
-            console.log(`Error linking ${name} to CodeTestLog`);
+            console.log(`Error linking ${name} to Algolog`);
           });
           chrome.storage.local.set({ [CTL_STORAGE_KEYS.githubRepo]: null }, () => {
             console.log('Defaulted repo hook to NONE');

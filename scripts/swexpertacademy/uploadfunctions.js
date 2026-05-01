@@ -114,7 +114,7 @@ async function uploadAllSolvedProblemSWEA() {
     // 5. 단일 커밋으로 일괄 업로드
     if (tree_items.length !== 0) {
       const treeData = await git.createTree(refSHA, tree_items);
-      const commitSHA = await git.createCommit('전체 코드 업로드 -CodeTestLog', treeData.sha, refSHA);
+      const commitSHA = await git.createCommit('전체 코드 업로드 -Algolog', treeData.sha, refSHA);
       await git.updateHead(ref, commitSHA);
       MultiloaderSuccess();
       treeData.tree.forEach((item) => {

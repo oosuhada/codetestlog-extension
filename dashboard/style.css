@@ -1,20 +1,42 @@
 :root {
-  --bg: #101114;
-  --surface: #171a21;
-  --surface-strong: #1f232d;
-  --border: #30363d;
-  --text: #e6edf3;
-  --muted: #8b949e;
-  --accent: #4fd1c5;
-  --accent-ink: #061817;
-  --correct: #3fb950;
-  --wrong: #f85149;
-  --timeout: #d29922;
-  --runtime: #f97316;
-  --compile: #a78bfa;
-  --memory: #38bdf8;
-  --partial: #eab308;
+  color-scheme: dark;
+  --bg: #111111;
+  --surface: #191919;
+  --surface-strong: #242424;
+  --border: #333333;
+  --text: #f2f2ef;
+  --muted: #aaa39a;
+  --accent: #d8b26e;
+  --accent-ink: #15120c;
+  --correct: #7fb069;
+  --wrong: #d36b5f;
+  --timeout: #c49a4a;
+  --runtime: #c17c54;
+  --compile: #b69ad1;
+  --memory: #7f9a9c;
+  --partial: #d1a64b;
   --font: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #f7efe3;
+    --surface: #fff8ee;
+    --surface-strong: #f0e3d1;
+    --border: #d8c8b4;
+    --text: #2a251f;
+    --muted: #746958;
+    --accent: #8f6a2f;
+    --accent-ink: #fff8ee;
+    --correct: #4f7f46;
+    --wrong: #b95448;
+    --timeout: #946f24;
+    --runtime: #9a5c32;
+    --compile: #7b609a;
+    --memory: #547479;
+    --partial: #9a7424;
+  }
 }
 
 * {
@@ -96,7 +118,7 @@ h1 {
 .filter-row select:focus {
   border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.16);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 .repo-input-area button {

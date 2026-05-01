@@ -2,14 +2,14 @@
  * 로딩 버튼 추가
  */
 function startUpload() {
-  let elem = document.getElementById('BaekjoonHub_progress_anchor_element');
+  let elem = document.getElementById('algolog-progress-anchor');
   if (elem !== undefined) {
     elem = document.createElement('span');
-    elem.id = 'BaekjoonHub_progress_anchor_element';
+    elem.id = 'algolog-progress-anchor';
     // elem.className = 'runcode-wrapper__8rXm';
     // elem.style = 'margin-left: 10px;padding-top: 0px;';
   }
-  elem.innerHTML = `<div id="BaekjoonHub_progress_elem" class="BaekjoonHub_progress"></div>`;
+  elem.innerHTML = `<div id="algolog-progress-elem" class="algolog-progress"></div>`;
   const target = document.querySelector('div.box-list > div.box-list-inner > div.right_answer > span.btn_right');
   if (!isNull(target)) {
     target.prepend(elem);
@@ -26,7 +26,7 @@ function startUpload() {
  */
 function markUploadedCSS(branches, directory) {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   elem.className = 'markuploaded';
   const uploadedUrl = "https://github.com/" +
               Object.keys(branches)[0] + "/tree/" + 
@@ -42,7 +42,7 @@ function markUploadedCSS(branches, directory) {
  */
 function markUploadFailedCSS() {
   uploadState.uploading = false;
-  const elem = document.getElementById('BaekjoonHub_progress_elem');
+  const elem = document.getElementById('algolog-progress-elem');
   elem.className = 'markuploadfailed';
 }
 
@@ -91,7 +91,7 @@ function insertUploadAllButton() {
   if (isNull(header)) return;
   const btn = document.createElement('button');
   btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:3px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" fill="currentColor"/></svg>전체제출 업로드';
-  btn.className = 'BJH_uploadall_btn';
+  btn.className = 'algolog-uploadall-btn';
   btn.style.cssText = 'cursor:pointer;margin-left:10px;padding:2px 8px;background:transparent;color:#2e2e2e;border:1px solid #ccc;border-radius:3px;font-size:13px;font-weight:400;vertical-align:middle;line-height:22px;';
   btn.addEventListener('click', () => {
     if (confirm('GitHub에 전체 제출을 업로드하시겠습니까?')) {
@@ -106,17 +106,17 @@ function insertUploadAllButton() {
  * 전체 업로드 진행률 표시 DOM을 생성합니다.
  */
 function insertMultiLoader() {
-  const btn = document.querySelector('.BJH_uploadall_btn');
+  const btn = document.querySelector('.algolog-uploadall-btn');
   const parent = btn ? btn.parentElement : document.body;
   const wrap = document.createElement('span');
-  wrap.className = 'BJH_loading_wrap';
+  wrap.className = 'algolog-loading-wrap';
   wrap.style.cssText = 'margin-left:10px;font-size:13px;vertical-align:middle;';
   const nom = document.createElement('span');
-  nom.className = 'BJH_loading_number';
+  nom.className = 'algolog-loading-number';
   nom.textContent = '0';
   const slash = document.createTextNode(' / ');
   const denom = document.createElement('span');
-  denom.className = 'BJH_loading_number';
+  denom.className = 'algolog-loading-number';
   denom.textContent = '0';
   wrap.appendChild(nom);
   wrap.appendChild(slash);

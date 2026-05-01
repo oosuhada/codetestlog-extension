@@ -1,10 +1,10 @@
 # [P01] Phase 1: 커밋 엔진 완전 재작성
 
 ## 전제 조건
-P00 완료 상태. `manifest.json` name = `"CodeTestLog"`.
+P00 완료 상태. `manifest.json` name = `"Algolog"`.
 
 ## 작업 목표
-**이 Phase가 CodeTestLog의 핵심.** 기존 BaekjoonHub의 커밋 로직을 완전히 신뢰할 수 있게 재작성.
+**이 Phase가 Algolog의 핵심.** 이전 백업 도구의 커밋 로직을 완전히 신뢰할 수 있게 재작성.
 
 ### 해결해야 할 핵심 버그 (작업 시작 전 반드시 재현 확인)
 1. **오답 제출 미기록**: 정답만 커밋, 오답 시도는 버려짐
@@ -116,7 +116,7 @@ const SubmissionState = (() => {
     STATE,
     get() { return current; },
     transition(next) {
-      console.log(`[CTL] State: ${current} → ${next}`);
+      console.log(`[ALG] State: ${current} → ${next}`);
       current = next;
     },
     canCommit() {
@@ -207,7 +207,7 @@ async function getAttemptCount(site, problemId) {
 
 ```javascript
 /**
- * CodeTestLog 규칙 파일명 생성
+ * Algolog 규칙 파일명 생성
  * 반환 예: "20260501_143022_correct_기능개발.py"
  */
 function buildFileName(result, title, ext) {
@@ -232,10 +232,10 @@ function buildCommitPath(site, level, problemId, title) {
 
 /**
  * 커밋 메시지 생성
- * 반환 예: "[CTL] correct | 프로그래머스 | lv2 | 기능개발 | Python | 3번째 시도"
+ * 반환 예: "[ALG] correct | 프로그래머스 | lv2 | 기능개발 | Python | 3번째 시도"
  */
 function buildCommitMessage({ result, site, level, title, lang, attemptCount }) {
-  return `[CTL] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
+  return `[ALG] ${result} | ${site} | ${level} | ${title} | ${lang} | ${attemptCount}번째 시도`;
 }
 ```
 
@@ -283,7 +283,7 @@ async function handleProgrammersResult(rawResult, code) {
 
   // 2. 상태 머신: 커밋 가능 여부 체크 (연속 제출 버그 방지)
   if (!SubmissionState.canCommit()) {
-    console.warn('[CTL] 커밋 쿨다운 중. 스킵.');
+    console.warn('[ALG] 커밋 쿨다운 중. 스킵.');
     return;
   }
 
@@ -309,9 +309,9 @@ async function handleProgrammersResult(rawResult, code) {
     await uploadToGitHub(commitPath, fileName, code, commitMsg);
     // P02 Side Panel에 결과 전달 (P02 작업 후 활성화)
     // notifySidePanel({ result: ctlResult, fileName, commitPath, attemptCount });
-    console.log(`[CTL] 커밋 완료: ${commitPath}/${fileName}`);
+    console.log(`[ALG] 커밋 완료: ${commitPath}/${fileName}`);
   } catch (err) {
-    console.error('[CTL] 커밋 실패:', err);
+    console.error('[ALG] 커밋 실패:', err);
   } finally {
     SubmissionState.markCommitEnd();
   }
@@ -326,7 +326,7 @@ async function handleProgrammersResult(rawResult, code) {
 마이그레이션 예시:
 ```javascript
 // 기존
-chrome.storage.local.get(['BaekjoonHub_token'], ...)
+chrome.storage.local.get(['이전 백업 도구_token'], ...)
 
 // 변경 후
 chrome.storage.local.get([CTL_STORAGE_KEYS.githubToken], ...)
@@ -337,8 +337,8 @@ chrome.storage.local.get([CTL_STORAGE_KEYS.githubToken], ...)
 // 최초 실행 시 구 키 → 신 키 마이그레이션
 async function migrateLegacyStorageKeys() {
   const LEGACY_KEY_MAP = {
-    'BaekjoonHub_token': CTL_STORAGE_KEYS.githubToken,
-    'BaekjoonHub_repo':  CTL_STORAGE_KEYS.githubRepo,
+    '이전 백업 도구_token': CTL_STORAGE_KEYS.githubToken,
+    '이전 백업 도구_repo':  CTL_STORAGE_KEYS.githubRepo,
     // 작업 1에서 발견한 키 추가
   };
 
@@ -355,7 +355,7 @@ async function migrateLegacyStorageKeys() {
       });
     });
   }
-  console.log('[CTL] 스토리지 마이그레이션 완료');
+  console.log('[ALG] 스토리지 마이그레이션 완료');
 }
 ```
 

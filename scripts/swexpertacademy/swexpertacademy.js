@@ -11,7 +11,7 @@ const currentUrl = window.location.href;
 
 // SWEA 연습 문제 주소임을 확인하고, 맞는 파서를 실행
 if (currentUrl.includes('/main/solvingProblem/solvingProblem.do') && document.querySelector('header > h1 > span').textContent === '모의 테스트') startLoader();
-else if (currentUrl.includes('/main/code/problem/problemSolver.do') && currentUrl.includes('extension=BaekjoonHub')) parseAndUpload();
+else if (currentUrl.includes('/main/code/problem/problemSolver.do') && currentUrl.includes('extension=Algolog')) parseAndUpload();
 
 if (currentUrl.includes('/main/userpage/code/userCode.do')) {
   (async () => {
@@ -53,7 +53,7 @@ function startLoader() {
           + `/main/code/problem/problemSolver.do?`
           + `contestProbId=${contestProbId}&`
           + `nickName=${getNickname()}&`
-          + `extension=BaekjoonHub`;
+          + `extension=Algolog`;
       } catch (error) {
         log(error);
       }

@@ -41,7 +41,7 @@ async function parseBojTier(problemId) {
       return SOLVED_AC_TIER[data.level] || 'unrated';
     }
   } catch (_) {
-    console.warn('[CTL] solved.ac API 실패, DOM fallback 시도');
+    console.warn('[ALG] solved.ac API 실패, DOM fallback 시도');
   }
 
   try {

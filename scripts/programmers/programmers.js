@@ -1,20 +1,3 @@
-/*
- * [CTL Analysis - P01]
- * 제출 감지 방식: 제출 버튼 클릭 이벤트를 붙인 뒤 결과 모달 DOM을 폴링한다.
- * 결과 판별 위치: getSolvedResultInfo()가 모달/결과 테이블 텍스트를 수집하고 normalizeProgrammersResult()가 CTL_RESULT로 정규화한다.
- * 정답/오답 분기: beginUpload()가 CTL_RESULT를 uploadOneSolveProblemOnGit()에 전달한다.
- *
- * 발견한 버그:
- *   - BUG-1: 기존 startLoader()는 '정답'/'틀렸습니다'만 확인해 시간초과/런타임/컴파일 에러 제출을 놓쳤다.
- *   - BUG-2: 제출 버튼 클릭 때 uploadState.uploading을 강제로 false로 바꿔 진행 중인 커밋과 다음 제출이 충돌할 수 있었다.
- *
- * 기존 스토리지 키 목록: (마이그레이션 대상)
- *   - 'stats' → ctl_stats
- *   - 'bjhEnable' → ctl_is_enabled
- *   - 'BaekjoonHub_hook' → ctl_github_repo
- *   - 'BaekjoonHub_token' → ctl_github_token
- */
-
 // Set to true to enable console log
 const debug = false;
 
@@ -87,7 +70,7 @@ function startLoader() {
 
     const result = normalizeProgrammersResult(solvedResult.rawResult);
     if (result) {
-      log(`[CTL] ${result} 결과 감지. 업로드를 시작합니다.`, solvedResult.rawResult);
+      log(`[ALG] ${result} 결과 감지. 업로드를 시작합니다.`, solvedResult.rawResult);
       stopLoader();
       try {
         await handleProgrammersResult(solvedResult.rawResult, solvedResult.signature);
@@ -112,11 +95,11 @@ function sendCtlRuntimeMessage(message) {
   try {
     chrome.runtime.sendMessage(message, () => {
       if (chrome.runtime.lastError) {
-        log('[CTL] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
+        log('[ALG] Side Panel 메시지 전달 생략:', chrome.runtime.lastError.message);
       }
     });
   } catch (error) {
-    log('[CTL] Side Panel 메시지 전달 실패:', error);
+    log('[ALG] Side Panel 메시지 전달 실패:', error);
   }
 }
 
@@ -174,8 +157,8 @@ function notifySidePanelCommitEvent({ phase, bojData, result, eventId, success, 
 function attachSubmitListener() {
   const tryAttach = () => {
     const submitBtn = document.querySelector('button#submit-code');
-    if (submitBtn && !submitBtn.dataset.bjhSubmitAttached) {
-      submitBtn.dataset.bjhSubmitAttached = 'true';
+    if (submitBtn && !submitBtn.dataset.algologSubmitAttached) {
+      submitBtn.dataset.algologSubmitAttached = 'true';
       submitBtn.addEventListener('click', async () => {
         const enable = await checkEnable();
         if (!enable) return;
@@ -203,8 +186,8 @@ function attachSubmitListener() {
 function attachRunCodeListener() {
   const tryAttach = () => {
     const runBtn = document.querySelector('button#run-code');
-    if (runBtn && !runBtn.dataset.bjhAttached) {
-      runBtn.dataset.bjhAttached = 'true';
+    if (runBtn && !runBtn.dataset.algologAttached) {
+      runBtn.dataset.algologAttached = 'true';
       runBtn.addEventListener('click', async () => {
         const enable = await checkEnable();
         if (!enable) return;
@@ -330,7 +313,7 @@ async function beginUpload(bojData, result = CTL_RESULT.CORRECT, signature = '')
       eventId: commitEventId,
       success: true,
     });
-    console.log(`[CTL] 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
+    console.log(`[ALG] 커밋 완료: ${bojData.directory}/${bojData.fileName}`);
   } catch (error) {
     markUploadFailedCSS();
     notifySidePanelCommitEvent({
@@ -341,7 +324,7 @@ async function beginUpload(bojData, result = CTL_RESULT.CORRECT, signature = '')
       success: false,
       error,
     });
-    console.error('[CTL] 커밋 실패:', error);
+    console.error('[ALG] 커밋 실패:', error);
   } finally {
     uploadState.uploading = false;
     SubmissionState.markCommitEnd();

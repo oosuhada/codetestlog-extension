@@ -203,7 +203,7 @@ function enableSidePanelBehavior() {
   if (!chrome.sidePanel || !chrome.sidePanel.setPanelBehavior) return;
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error('[CTL] Side Panel action 설정 실패:', error));
+    .catch((error) => console.error('[ALG] Side Panel action 설정 실패:', error));
 }
 
 enableSidePanelBehavior();
@@ -272,14 +272,14 @@ function handleMessage(request, sender, sendResponse) {
   if (request && (request.type === 'CTL_COMMIT_EVENT' || request.type === 'CTL_PROBLEM_CONTEXT')) {
     if (request.type === 'CTL_COMMIT_EVENT') {
       recordSuccessfulCommitToNotion(request.payload).catch((error) => {
-        console.error('[CTL] Notion optional flow failed:', error);
+        console.error('[ALG] Notion optional flow failed:', error);
       });
     }
 
     updatePanelStateFromMessage(request)
       .then((response) => sendResponse(response))
       .catch((error) => {
-        console.error('[CTL] Side Panel 상태 갱신 실패:', error);
+        console.error('[ALG] Side Panel 상태 갱신 실패:', error);
         sendResponse({ ok: false, error: error.message });
       });
     return true;

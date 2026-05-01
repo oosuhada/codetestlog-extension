@@ -1,5 +1,5 @@
-// ─── CodeTestLog Storage Key Namespace ───────────────────────────────────────
-// 기존 BaekjoonHub 키는 migrateLegacyStorageKeys()에서 ctl_ 키로 보존 이전한다.
+// ─── Algolog Storage Key Namespace ───────────────────────────────────────
+// 설치된 사용자의 데이터 호환을 위해 ctl_ 네임스페이스는 유지한다.
 var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
   attemptCount: (site, problemId) => `ctl_attempt_${site}_${problemId}`,
   dirTemplate:  (platform) => `ctl_dir_template_${platform}`,
@@ -24,23 +24,7 @@ var CTL_STORAGE_KEYS = globalThis.CTL_STORAGE_KEYS || {
 };
 globalThis.CTL_STORAGE_KEYS = CTL_STORAGE_KEYS;
 
-var CTL_LEGACY_KEY_MAP = globalThis.CTL_LEGACY_KEY_MAP || {
-  BaekjoonHub_token: CTL_STORAGE_KEYS.githubToken,
-  BaekjoonHub_username: CTL_STORAGE_KEYS.githubUsername,
-  BaekjoonHub_hook: CTL_STORAGE_KEYS.githubRepo,
-  repo: CTL_STORAGE_KEYS.githubRepoUrl,
-  BaekjoonHub_OrgOption: CTL_STORAGE_KEYS.orgOption,
-  BaekjoonHub_disOption: CTL_STORAGE_KEYS.orgOption,
-  BaekjoonHub_userPrefix: CTL_STORAGE_KEYS.userPrefix,
-  bjhEnable: CTL_STORAGE_KEYS.isEnabled,
-  bjhSaveExamples: CTL_STORAGE_KEYS.saveExamples,
-  bjh_theme: CTL_STORAGE_KEYS.theme,
-  bjh_lang: CTL_STORAGE_KEYS.language,
-  mode_type: CTL_STORAGE_KEYS.modeType,
-  stats: CTL_STORAGE_KEYS.stats,
-  pipe_baekjoonhub: CTL_STORAGE_KEYS.oauthPipe,
-  pipe_BaekjoonHub: CTL_STORAGE_KEYS.oauthPipe,
-};
+var CTL_LEGACY_KEY_MAP = globalThis.CTL_LEGACY_KEY_MAP || {};
 globalThis.CTL_LEGACY_KEY_MAP = CTL_LEGACY_KEY_MAP;
 
 var CTL_TEMPLATE_PLATFORMS = globalThis.CTL_TEMPLATE_PLATFORMS || [
@@ -85,18 +69,6 @@ async function migrateLegacyStorageKeys() {
     }
   }
 
-  for (const platform of CTL_TEMPLATE_PLATFORMS) {
-    const oldKey = `BaekjoonHub_dirTemplate_${platform}`;
-    const newKey = CTL_STORAGE_KEYS.dirTemplate(platform);
-    const data = await ctlChromeGet([oldKey, newKey]);
-    if (data[oldKey] !== undefined) {
-      if (data[newKey] === undefined) {
-        nextData[newKey] = data[oldKey];
-      }
-      removeKeys.push(oldKey);
-    }
-  }
-
   if (Object.keys(nextData).length > 0) {
     await ctlChromeSet(nextData);
   }
@@ -104,5 +76,5 @@ async function migrateLegacyStorageKeys() {
     await ctlChromeRemove(removeKeys);
   }
 
-  console.log('[CTL] 스토리지 마이그레이션 완료');
+  console.log('[ALG] 스토리지 준비 완료');
 }

@@ -134,7 +134,7 @@ async function makeData({
     language,
     _defaultDir: `goormlevel/${examId}/${quizNumber}. ${convertSingleCharToDoubleChar(title)}`,
   });
-  const message = `[난이도 ${difficulty}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -CodeTestLog`;
+  const message = `[난이도 ${difficulty}] Title: ${title}, Time: ${runtime}, Memory: ${memory} -Algolog`;
   const fileName = `${convertSingleCharToDoubleChar(title)}.${languageExtension}`;
   const dateInfo = getDateString(new Date(Date.now()));
   // prettier-ignore

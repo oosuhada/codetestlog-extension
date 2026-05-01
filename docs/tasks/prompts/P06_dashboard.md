@@ -180,14 +180,14 @@ function calcStreak(solvedDays) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeTestLog Dashboard</title>
+  <title>Algolog Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
   <header class="db-header">
     <div class="header-inner">
-      <h1><span class="logo">CTL</span> CodeTestLog</h1>
+      <h1><span class="logo">ALG</span> Algolog</h1>
       <div class="repo-input-area">
         <input id="repo-input" placeholder="username/repo-name" />
         <button id="load-btn">불러오기</button>

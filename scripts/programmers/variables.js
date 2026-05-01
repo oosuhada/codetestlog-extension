@@ -1,21 +1,4 @@
-/*
- * [CTL Analysis - P01]
- * 제출 감지 방식: programmers.js에서 제출/코드 실행 버튼 클릭 이벤트를 붙이고, 제출 결과는 DOM 폴링으로 감지한다.
- * 결과 판별 위치: programmers.js의 getSolvedResult(), startLoader()에서 모달 텍스트를 검사한다.
- * 정답/오답 분기: 기존 beginUpload(bojData, isPassed) boolean 분기로 정답/오답/코드 실행을 나눴다.
- *
- * 발견한 버그:
- *   - BUG-1: 결과 타입이 true/false/null이라 시간초과, 런타임 에러, 컴파일 에러를 안정적으로 구분하지 못한다.
- *   - BUG-2: uploadState.uploading 하나로만 중복을 막아 연속 제출 시 race condition이 생긴다.
- *
- * 기존 스토리지 키 목록: (마이그레이션 대상)
- *   - 'BaekjoonHub_token' → ctl_github_token
- *   - 'BaekjoonHub_hook' → ctl_github_repo
- *   - 'stats' → ctl_stats
- *   - 'bjhEnable' → ctl_is_enabled
- */
-
-/* CodeTestLog의 전역 변수 선언 파일입니다. */
+/* Algolog의 전역 변수 선언 파일입니다. */
 
 // ─── CTL: 제출 결과 타입 ──────────────────────────────────────────────────────
 const CTL_RESULT = {
