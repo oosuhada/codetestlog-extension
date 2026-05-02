@@ -2,6 +2,16 @@
 
 Algolog는 코딩테스트 풀이의 전 과정을 기록하고, 제출 이력과 성장 흐름을 돌아볼 수 있게 돕는 Chrome 확장 프로그램입니다.
 
+**English summary.** Algolog is a Chrome extension for preserving the full coding-test workflow instead of only the final accepted answer. It records submission attempts to GitHub, shows per-problem history in a Side Panel, supports multiple judge adapters, and can optionally connect a dashboard, Notion review notes, and AI feedback.
+
+## 화면 / Product walkthrough
+
+| Programmers | Baekjoon | Submission output |
+| --- | --- | --- |
+| ![Programmers integration](assets/extension/Programmers.gif) | ![Baekjoon integration](assets/extension/Baekjoon.gif) | ![Algolog submission output](assets/extension/output.gif) |
+
+The GIFs above are captured from the extension workflow and make it possible to review the interaction model without installing the unpacked extension first.
+
 ## 핵심 기능
 
 - 모든 제출 시도를 GitHub에 자동 커밋
