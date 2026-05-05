@@ -2,15 +2,13 @@
 
 Algolog는 코딩테스트 풀이의 전 과정을 기록하고, 제출 이력과 성장 흐름을 돌아볼 수 있게 돕는 Chrome 확장 프로그램입니다.
 
-**English summary.** Algolog is a Chrome extension for preserving the full coding-test workflow instead of only the final accepted answer. It records submission attempts to GitHub, shows per-problem history in a Side Panel, supports multiple judge adapters, and can optionally connect a dashboard, Notion review notes, and AI feedback.
+Algolog is a Chrome extension for preserving the full coding-test workflow instead of only the final accepted answer. It records submission attempts to GitHub, shows per-problem history in a Side Panel, supports multiple judge adapters, and can optionally connect a dashboard, Notion review notes, and AI feedback.
 
-## 왜 만들었나 / Why I built it
+## Why I Built It / 만든 이유
 
-코딩테스트를 풀 때 유명한 오픈소스 확장 프로그램인 **BaekjoonHub**를 사용했습니다. 편리했지만 GitHub에는 마지막으로 통과한 정답 코드만 남기 때문에, 그 전에 몇 분 동안 고민했는지, 몇 번 제출했는지, 어떤 코드가 오답·시간초과·런타임 에러였는지 같은 **풀이 과정 자체가 전부 사라지는 점**이 불편했습니다.
+I used BaekjoonHub while solving coding tests, but it only committed the final accepted answer to Git and the entire trial-and-error, problem-solving process disappeared. Instead of keeping a separate journal, I forked the open-source extension and rebuilt it to record every submission automatically.
 
-그 과정을 따로 손으로 기록하기보다 오픈소스인 BaekjoonHub를 기반으로 내가 필요한 방식으로 직접 고쳐 쓰기 시작했습니다. 최종 정답만 저장하는 대신 모든 제출 시도를 결과와 시각 정보와 함께 남기고, Side Panel에서 문제별 이력을 다시 볼 수 있게 확장한 것이 Algolog의 출발점입니다.
-
-Algolog began as a customization of the open-source BaekjoonHub workflow I was already using. BaekjoonHub conveniently saved the final accepted solution, but all the failed attempts and the time spent getting there disappeared. I wanted the repository to preserve the learning process—not only the answer—so I extended the idea to record every submission, result, and per-problem history.
+코딩테스트를 풀면서 BaekjoonHub를 쓰고 있었는데, Git에는 최종 정답만 커밋되고 끝이었습니다. 몇 번 틀렸는지, 얼마나 걸렸는지, 어떤 코드가 오답이었는지, 풀이 과정 전체가 사라졌습니다. 따로 기록하는 대신 오픈소스를 fork해서 모든 제출을 자동 기록하도록 직접 고쳤습니다.
 
 ## 화면 / Product walkthrough
 
