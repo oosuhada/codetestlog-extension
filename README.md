@@ -64,3 +64,7 @@ GitHub Pages 배포는 [.github/workflows/deploy-dashboard.yml](.github/workflow
 ## 문서
 
 작업 계획과 Phase별 로그는 [docs/tasks](docs/tasks) 아래에 정리되어 있습니다.
+
+## Topics
+
+[`baekjoon`](https://github.com/topics/baekjoon) · [`browser-extension`](https://github.com/topics/browser-extension) · [`chrome-extension`](https://github.com/topics/chrome-extension) · [`coding-test`](https://github.com/topics/coding-test) · [`developer-tools`](https://github.com/topics/developer-tools) · [`github`](https://github.com/topics/github) · [`javascript`](https://github.com/topics/javascript) · [`programmers`](https://github.com/topics/programmers)
