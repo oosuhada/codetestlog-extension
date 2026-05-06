@@ -32,15 +32,27 @@
 }
 
 body {
-  width: 350px;
+  width: 340px;
   background-color: var(--popup-bg) !important;
   color: var(--popup-text);
-  padding: 10px;
+  padding: 10px 12px;
   text-align: center;
   transition: background-color 0.75s ease;
   font-size: 13px;
 
   font-family: var(--popup-font);
+}
+
+.ui.grid.container {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.ui.grid > .column:not(.row),
+.ui.grid > .row > .column {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 #title {
@@ -132,26 +144,22 @@ body {
   background: var(--popup-accent-strong);
 }
 
+body *,
+body *::before,
+body *::after {
+  box-sizing: border-box;
+}
+
 .settings-section {
   width: 100%;
   margin: 12px 0 4px;
-  padding: 12px;
   border: 1px solid var(--popup-border);
   border-radius: 6px;
   text-align: left;
   background: var(--popup-surface);
 }
 
-.addons-section {
-  width: 100%;
-  margin: 10px 0 4px;
-  border: 1px solid var(--popup-border);
-  border-radius: 6px;
-  background: var(--popup-surface);
-  text-align: left;
-}
-
-.addons-summary {
+.optional-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -165,12 +173,13 @@ body {
   list-style: none;
 }
 
-.addons-summary::-webkit-details-marker {
+.optional-summary::-webkit-details-marker {
   display: none;
 }
 
-.addons-summary::after {
+.optional-summary::after {
   content: '';
+  flex: 0 0 auto;
   width: 7px;
   height: 7px;
   margin-left: 4px;
@@ -180,39 +189,25 @@ body {
   transition: transform 0.18s ease;
 }
 
-.addons-section[open] .addons-summary {
+.optional-section[open] .optional-summary {
   border-bottom: 1px solid var(--popup-border);
 }
 
-.addons-section[open] .addons-summary::after {
+.optional-section[open] .optional-summary::after {
   transform: rotate(-135deg);
 }
 
-.addons-summary-meta {
-  margin-left: auto;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: var(--popup-accent-soft);
-  color: var(--popup-accent);
-  font-size: 11px;
-  font-weight: 700;
+.optional-section {
+  padding: 0;
 }
 
-.addons-summary-meta.is-configured {
+.optional-section.is-configured .badge-optional {
   background: color-mix(in srgb, var(--popup-success) 14%, transparent);
   color: var(--popup-success);
 }
 
-.optional-section {
-  margin: 0;
-  border: 0;
-  border-bottom: 1px solid var(--popup-border);
-  border-radius: 0;
-  background: transparent;
-}
-
-.optional-section:last-child {
-  border-bottom: 0;
+.optional-content {
+  padding: 12px;
 }
 
 .quick-actions {
@@ -241,13 +236,6 @@ body {
 
 .quick-action:hover {
   background: var(--popup-accent-soft);
-}
-
-.settings-section h3 {
-  margin: 0 0 6px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--popup-text);
 }
 
 .badge-optional {
