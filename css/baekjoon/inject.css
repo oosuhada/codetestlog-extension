@@ -9,7 +9,7 @@
   height: 0.8em;
   border: 0.4em solid transparent;
   border-color: #eee;
-  border-top-color: #d8b26e;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: loadingspin 1s linear infinite;
 }
@@ -50,20 +50,20 @@
 }
 
 .algolog-manual-upload-btn.algolog-upload-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f6a2f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
 }
 
 .algolog-manual-upload-btn.algolog-upload-icon:hover {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f5124' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d4ed8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
 }
 
 .algolog-manual-upload-btn.algolog-progress {
   pointer-events: none;
   border: 0.3em solid transparent;
   border-color: #eee;
-  border-top-color: #d8b26e;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: loadingspin 1s linear infinite;
   background-image: none;
@@ -110,7 +110,7 @@
   margin-right: 20px;
   padding-top: 0%;
   width: fit-content !important;
-  color: #8f6a2f !important;
+  color: #3b82f6 !important;
 
   position: relative !important;
 }
@@ -202,14 +202,14 @@
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background-color: #8f6a2f;
+  background-color: #3b82f6;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .algolog-save-examples-btn:hover {
-  background-color: #6f5124;
+  background-color: #1d4ed8;
 }
 
 .algolog-save-examples-btn:disabled {

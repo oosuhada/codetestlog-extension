@@ -1,7 +1,7 @@
 (function () {
   const chartInstances = {};
 
-  const SITE_COLOR_VARS = ['--accent', '--timeout', '--compile', '--wrong', '--memory', '--correct'];
+  const SITE_COLOR_VARS = ['--accent', '--memory', '--compile', '--timeout', '--correct', '--wrong'];
 
   function cssVar(name, fallback) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
@@ -18,7 +18,7 @@
       partial: '--partial',
       run: '--muted',
     };
-    return cssVar(map[result] || '--muted', '#8f8678');
+    return cssVar(map[result] || '--muted', '#64748b');
   }
 
   function destroyChart(key) {
@@ -32,8 +32,8 @@
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = cssVar('--muted', '#8f8678');
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = cssVar('--muted', '#64748b');
+    ctx.font = '13px JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(message, canvas.width / 2, Math.max(24, canvas.height / 2));
   }
@@ -57,11 +57,11 @@
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: { color: cssVar('--text', '#f2f2ef'), boxWidth: 12, padding: 14 },
+          labels: { color: cssVar('--text', '#e8edf4'), boxWidth: 12, padding: 14 },
         },
         tooltip: {
-          backgroundColor: cssVar('--surface', '#191919'),
-          borderColor: cssVar('--border', '#333333'),
+          backgroundColor: cssVar('--surface', '#151a21'),
+          borderColor: cssVar('--border', '#2a3442'),
           borderWidth: 1,
         },
       },
@@ -77,14 +77,14 @@
         datasets: [{
           label: '제출',
           data: dailySeries.map((item) => item.count),
-          backgroundColor: cssVar('--accent', '#d8b26e'),
+          backgroundColor: cssVar('--accent', '#3b82f6'),
           borderRadius: 4,
         }],
       },
       options: defaultOptions({
         scales: {
-          x: { ticks: { color: cssVar('--muted', '#aaa39a'), maxRotation: 0 }, grid: { color: cssVar('--border', '#333333') } },
-          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#aaa39a'), precision: 0 }, grid: { color: cssVar('--border', '#333333') } },
+          x: { ticks: { color: cssVar('--muted', '#9aa4b2'), maxRotation: 0 }, grid: { color: cssVar('--border', '#2a3442') } },
+          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#9aa4b2'), precision: 0 }, grid: { color: cssVar('--border', '#2a3442') } },
         },
       }),
     });
@@ -99,7 +99,7 @@
         datasets: [{
           data: labels.map((key) => byResult[key]),
           backgroundColor: labels.map((key) => resultColor(key)),
-          borderColor: cssVar('--surface', '#191919'),
+          borderColor: cssVar('--surface', '#151a21'),
           borderWidth: 2,
         }],
       },
@@ -116,14 +116,14 @@
         datasets: [{
           label: '제출',
           data: labels.map((key) => bySite[key]),
-          backgroundColor: labels.map((_, index) => cssVar(SITE_COLOR_VARS[index % SITE_COLOR_VARS.length], '#d8b26e')),
+          backgroundColor: labels.map((_, index) => cssVar(SITE_COLOR_VARS[index % SITE_COLOR_VARS.length], '#3b82f6')),
           borderRadius: 4,
         }],
       },
       options: defaultOptions({
         scales: {
-          x: { ticks: { color: cssVar('--muted', '#aaa39a') }, grid: { display: false } },
-          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#aaa39a'), precision: 0 }, grid: { color: cssVar('--border', '#333333') } },
+          x: { ticks: { color: cssVar('--muted', '#9aa4b2') }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: cssVar('--muted', '#9aa4b2'), precision: 0 }, grid: { color: cssVar('--border', '#2a3442') } },
         },
       }),
     });

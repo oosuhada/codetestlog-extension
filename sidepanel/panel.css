@@ -1,36 +1,40 @@
 :root {
   color-scheme: dark;
-  --bg: #111111;
-  --surface: #191919;
-  --surface-2: #242424;
-  --border: #333333;
-  --text: #f2f2ef;
-  --text-muted: #aaa39a;
-  --accent: #d8b26e;
-  --correct: #7fb069;
-  --wrong: #d36b5f;
-  --timeout: #c49a4a;
-  --runtime: #c17c54;
-  --compile: #b69ad1;
-  --font: -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Segoe UI", sans-serif;
+  --bg: #0b0f14;
+  --surface: #151a21;
+  --surface-2: #0f1722;
+  --border: #2a3442;
+  --text: #e8edf4;
+  --text-muted: #9aa4b2;
+  --accent: #3b82f6;
+  --accent-strong: #60a5fa;
+  --accent-soft: rgba(59, 130, 246, 0.14);
+  --correct: #22c55e;
+  --wrong: #f87171;
+  --timeout: #f59e0b;
+  --runtime: #fb923c;
+  --compile: #a78bfa;
+  --font: "JetBrains Mono", "SFMono-Regular", "Cascadia Code", Menlo, Consolas, "Noto Sans KR", monospace;
   --radius: 8px;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
     color-scheme: light;
-    --bg: #f7efe3;
-    --surface: #fff8ee;
-    --surface-2: #f0e3d1;
-    --border: #d8c8b4;
-    --text: #2a251f;
-    --text-muted: #746958;
-    --accent: #8f6a2f;
-    --correct: #4f7f46;
-    --wrong: #b95448;
-    --timeout: #946f24;
-    --runtime: #9a5c32;
-    --compile: #7b609a;
+    --bg: #f4f8ff;
+    --surface: #ffffff;
+    --surface-2: #eaf2ff;
+    --border: #c9d9f2;
+    --text: #0f172a;
+    --text-muted: #637083;
+    --accent: #2563eb;
+    --accent-strong: #1d4ed8;
+    --accent-soft: #dceaff;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+    --timeout: #d97706;
+    --runtime: #ea580c;
+    --compile: #7c3aed;
   }
 }
 
@@ -65,17 +69,25 @@ body {
 
 .ctl-logo {
   flex-shrink: 0;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--accent);
-  color: var(--bg);
-  font-size: 11px;
-  font-weight: 800;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.wordmark-algo {
+  color: var(--text);
+  font-weight: 400;
+}
+
+.wordmark-log {
+  color: var(--accent);
+  font-weight: 300;
 }
 
 .ctl-title {
   flex: 1;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 400;
 }
 
 .status-dot {
@@ -132,8 +144,8 @@ body {
   margin-left: 4px;
   padding: 1px 5px;
   border-radius: 3px;
-  background: var(--surface-2);
-  color: var(--text-muted);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
   font-size: 10px;
   font-weight: 700;
   line-height: 1.4;
@@ -166,7 +178,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--accent);
-  color: var(--bg);
+  color: #fff;
   cursor: pointer;
   font-size: 12px;
   font-weight: 800;
@@ -196,7 +208,7 @@ body {
 
 .badge-correct {
   background: var(--correct);
-  color: #000;
+  color: #03120a;
 }
 
 .badge-wrong {
@@ -207,7 +219,7 @@ body {
 .badge-timeout,
 .badge-memory_exceeded {
   background: var(--timeout);
-  color: #000;
+  color: #140c02;
 }
 
 .badge-runtime_error {
@@ -217,13 +229,13 @@ body {
 
 .badge-compile_error {
   background: var(--compile);
-  color: #000;
+  color: #fff;
 }
 
 .badge-partial,
 .badge-run {
   background: var(--accent);
-  color: #000;
+  color: #fff;
 }
 
 .commit-meta {

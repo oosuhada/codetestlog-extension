@@ -226,7 +226,7 @@ function bindAiSettingsHandlers() {
                 chrome.storage.local.get([CTL_STORAGE_KEYS.stats, CTL_STORAGE_KEYS.githubRepo], (data3) => {
                   const ctlHook = data3[CTL_STORAGE_KEYS.githubRepo];
                   if (ctlHook) {
-                    const repoLink = `<a target="blank" style="color: #8f6a2f !important;" href="https://github.com/${ctlHook}">${ctlHook}</a>`;
+                    const repoLink = `<a target="blank" style="color: var(--popup-accent) !important;" href="https://github.com/${ctlHook}">${ctlHook}</a>`;
                     const updateRepoUrl = () => {
                       $('#repo_url').html(`${I18N.t('popup.yourRepo')} ${repoLink}`);
                     };
