@@ -7,16 +7,21 @@
   "version": "2.0.0",
   "author": "oosuhada",
   "action": {
-    "default_icon": "assets/thumbnail.png",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/algolog-icon-16.png",
+      "48": "assets/algolog-icon-48.png",
+      "128": "assets/algolog-icon-128.png"
+    },
     "default_title": "Algolog 열기"
   },
   "side_panel": {
     "default_path": "sidepanel/index.html"
   },
   "icons": {
-    "16": "assets/thumbnail.png",
-    "48": "assets/thumbnail.png",
-    "128": "assets/thumbnail.png"
+    "16": "assets/algolog-icon-16.png",
+    "48": "assets/algolog-icon-48.png",
+    "128": "assets/algolog-icon-128.png"
   },
   "background": {
     "service_worker": "scripts/background.js"

@@ -27,6 +27,7 @@ const STATUS_TITLES = {
 };
 
 let state = createEmptyState();
+let setupState = { hasToken: true, hasRepo: true };
 let idleTimer = null;
 
 function $(id) {
@@ -77,11 +78,33 @@ function normalizeState(rawState) {
 }
 
 function render() {
+  renderSetup();
   renderLastCommit();
   renderAttempts();
   renderToday();
   renderHistory();
   renderAi();
+}
+
+function renderSetup() {
+  const section = $('section-setup');
+  const title = $('setup-title');
+  const desc = $('setup-desc');
+
+  if (setupState.hasToken && setupState.hasRepo) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+  if (!setupState.hasToken) {
+    title.textContent = 'GitHub 인증이 필요합니다';
+    desc.textContent = '설정 페이지에서 GitHub 인증을 먼저 완료하세요.';
+    return;
+  }
+
+  title.textContent = '레포지토리 연결이 필요합니다';
+  desc.textContent = '설정 페이지에서 풀이를 기록할 GitHub 레포지토리를 연결하세요.';
 }
 
 function renderLastCommit() {
@@ -278,6 +301,23 @@ function loadState() {
   });
 }
 
+function loadSetupState() {
+  chrome.storage.local.get([
+    CTL_STORAGE_KEYS.githubToken,
+    CTL_STORAGE_KEYS.githubRepo,
+  ], (data) => {
+    setupState = {
+      hasToken: Boolean(data[CTL_STORAGE_KEYS.githubToken]),
+      hasRepo: Boolean(data[CTL_STORAGE_KEYS.githubRepo]),
+    };
+    renderSetup();
+  });
+}
+
+function openSettingsPage() {
+  chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+}
+
 chrome.runtime.onMessage.addListener((message) => {
   if (!message) return;
 
@@ -304,10 +344,19 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== 'local' || !changes[PANEL_STATE_KEY]) return;
-  state = normalizeState(changes[PANEL_STATE_KEY].newValue);
-  render();
+  if (areaName !== 'local') return;
+  if (changes[PANEL_STATE_KEY]) {
+    state = normalizeState(changes[PANEL_STATE_KEY].newValue);
+    render();
+  }
+  if (changes[CTL_STORAGE_KEYS.githubToken] || changes[CTL_STORAGE_KEYS.githubRepo]) {
+    loadSetupState();
+  }
 });
 
-document.addEventListener('DOMContentLoaded', loadState);
+document.addEventListener('DOMContentLoaded', () => {
+  $('setup-open-settings').addEventListener('click', openSettingsPage);
+  loadSetupState();
+  loadState();
+});
 setInterval(renderAttempts, 30000);

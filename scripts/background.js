@@ -231,20 +231,13 @@ async function updatePanelAiState(aiState) {
 function enableSidePanelBehavior() {
   if (!chrome.sidePanel || !chrome.sidePanel.setPanelBehavior) return;
   chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
+    .setPanelBehavior({ openPanelOnActionClick: false })
     .catch((error) => console.error('[ALG] Side Panel action 설정 실패:', error));
 }
 
 enableSidePanelBehavior();
 chrome.runtime.onInstalled.addListener(enableSidePanelBehavior);
 chrome.runtime.onStartup.addListener(enableSidePanelBehavior);
-
-if (chrome.action?.onClicked && chrome.sidePanel?.open) {
-  chrome.action.onClicked.addListener((tab) => {
-    if (!tab || !tab.id) return;
-    chrome.sidePanel.open({ tabId: tab.id }).catch(() => {});
-  });
-}
 
 /**
  * solvedac 문제 데이터를 파싱해오는 함수.
@@ -357,6 +350,23 @@ async function maybeRunAiAnalysis(payload = {}) {
 
 function handleMessage(request, sender, sendResponse) {
   migrateLegacyStorageKeys();
+
+  if (request && request.type === 'CTL_OPEN_SIDE_PANEL') {
+    const openOptions = {};
+    if (request.windowId) {
+      openOptions.windowId = request.windowId;
+    } else if (sender?.tab?.id) {
+      openOptions.tabId = sender.tab.id;
+    }
+    if (!openOptions.windowId && !openOptions.tabId) {
+      sendResponse({ ok: false, error: 'sidePanel.open target is missing.' });
+      return true;
+    }
+    chrome.sidePanel.open(openOptions)
+      .then(() => sendResponse({ ok: true }))
+      .catch((error) => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
 
   if (request && request.type === 'CTL_AI_TEST') {
     CTLAiClient.testConnection()
