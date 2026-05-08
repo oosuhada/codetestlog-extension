@@ -65,6 +65,16 @@ GitHub Pages 배포는 [.github/workflows/deploy-dashboard.yml](.github/workflow
 
 작업 계획과 Phase별 로그는 [docs/tasks](docs/tasks) 아래에 정리되어 있습니다.
 
-## Topics
+## Architecture & Topics / 아키텍처 및 주제
 
-[`baekjoon`](https://github.com/topics/baekjoon) · [`browser-extension`](https://github.com/topics/browser-extension) · [`chrome-extension`](https://github.com/topics/chrome-extension) · [`coding-test`](https://github.com/topics/coding-test) · [`developer-tools`](https://github.com/topics/developer-tools) · [`github`](https://github.com/topics/github) · [`javascript`](https://github.com/topics/javascript) · [`programmers`](https://github.com/topics/programmers) · [`baekjoonhub`](https://github.com/topics/baekjoonhub) · [`problem-solving`](https://github.com/topics/problem-solving) · [`coding-interview`](https://github.com/topics/coding-interview) · [`automation`](https://github.com/topics/automation) · [`open-source`](https://github.com/topics/open-source) · [`browser-automation`](https://github.com/topics/browser-automation) · [`submission-tracker`](https://github.com/topics/submission-tracker) · [`algorithm`](https://github.com/topics/algorithm)
+**Architecture / 아키텍처**<br>
+[`event-driven-architecture`](https://github.com/topics/event-driven-architecture) · [`browser-extension-architecture`](https://github.com/topics/browser-extension-architecture) · [`content-script-pattern`](https://github.com/topics/content-script-pattern) · [`background-service-worker`](https://github.com/topics/background-service-worker) · [`message-passing`](https://github.com/topics/message-passing) · [`adapter-pattern`](https://github.com/topics/adapter-pattern) · [`automated-ingestion`](https://github.com/topics/automated-ingestion) · [`append-only-history`](https://github.com/topics/append-only-history)
+
+**Core technologies / 핵심 기술**<br>
+[`chrome-extension`](https://github.com/topics/chrome-extension) · [`baekjoonhub`](https://github.com/topics/baekjoonhub)
+
+**Project context / 프로젝트 맥락**<br>
+[`algorithm`](https://github.com/topics/algorithm) · [`automation`](https://github.com/topics/automation) · [`baekjoon`](https://github.com/topics/baekjoon) · [`browser-automation`](https://github.com/topics/browser-automation) · [`browser-extension`](https://github.com/topics/browser-extension) · [`coding-interview`](https://github.com/topics/coding-interview) · [`coding-test`](https://github.com/topics/coding-test) · [`developer-tools`](https://github.com/topics/developer-tools) · [`github`](https://github.com/topics/github) · [`open-source`](https://github.com/topics/open-source) · [`problem-solving`](https://github.com/topics/problem-solving) · [`programmers`](https://github.com/topics/programmers) · [`submission-tracker`](https://github.com/topics/submission-tracker)
+
+**Implementation stack / 구현 스택**<br>
+[`javascript`](https://github.com/topics/javascript)
